@@ -6,13 +6,15 @@ import (
 )
 
 const (
-	signInURLTemplate = "https://web.telegram.org/a/#%d"
+	signInURLTemplate         = "https://web.telegram.org/a/#%d"
+	createAccountEndpoint     = "create-account"
+	dontCreateAccountEndpoint = "bye-dude-good-luck"
 )
 
 var (
 	Menu              = &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
-	CreateAccount     = Menu.Text("Yes")
-	DontCreateAccount = Menu.Text("No")
+	CreateAccount     = Menu.Data("Yes", createAccountEndpoint)
+	DontCreateAccount = Menu.Data("No", dontCreateAccountEndpoint)
 )
 
 func SignUpButton(telegramID int64) *tele.ReplyMarkup {

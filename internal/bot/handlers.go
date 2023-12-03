@@ -24,7 +24,7 @@ func (tb *TelegramBot) start(c tele.Context) error {
 
 	userInfo, found := tb.db.GetUser(senderInfo.ID)
 	if !found {
-		button.Menu.Reply(
+		button.Menu.Inline(
 			button.Menu.Row(button.CreateAccount),
 			button.Menu.Row(button.DontCreateAccount),
 		)
@@ -91,7 +91,7 @@ func (tb *TelegramBot) omitAccountCreation(c tele.Context) error {
 // getInfoMessage returns a message with all the information about Ringot and Pet Place
 func getInfoMessage(userName string) string {
 	message := fmt.Sprintf(
-		"Welcome to %s, %s!. I'm %s and I'll help you to perform different operations from Telegram %s. My features are:\n\n",
+		"Welcome to %s, %s! I'm %s and I'll help you to perform different operations from Telegram %s. My features are:\n\n",
 		petPlace,
 		userName,
 		botName,
@@ -106,7 +106,7 @@ func getInfoMessage(userName string) string {
 		fmt.Sprintf("/createPet: creates a register for your pet on-demand %s", emoji.Notebook),
 		fmt.Sprintf("/getPets: looks for information about your pets %s %s %s %s ", emoji.DogFace, emoji.Cat, emoji.Crocodile, emoji.Otter),
 		fmt.Sprintf("/setAlarm: sets an alarm whenever you want in your timezone %s", emoji.AlarmClock),
-		fmt.Sprintf("/getVets: search veterinaries %s near your location", emoji.Hospital),
+		fmt.Sprintf("/getVets: search vets %s near your location", emoji.Hospital),
 		fmt.Sprintf(
 			"/salchiFact: we all love '%s', so what's better that a random fact about salchichas? %s %s #SalchiData\n",
 			hyperlink,
