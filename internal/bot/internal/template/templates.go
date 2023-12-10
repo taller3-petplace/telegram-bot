@@ -9,7 +9,7 @@ import (
 // RegisterPet contains the data for the creation of a pet register
 func RegisterPet() string {
 	form := "Name: yourPetName\n\n"
-	form += "Age: X\n\n"
+	form += "Birth Date: yyyy/mm/dd\n\n"
 	form += "Type: E.g: cat, dog, otter, etc"
 
 	return form
