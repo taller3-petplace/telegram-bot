@@ -3,7 +3,7 @@ package bot
 import (
 	"fmt"
 	tele "gopkg.in/telebot.v3"
-	"telegram-bot/internal/bot/internal/salchifact"
+	"telegram-bot/internal/bot/internal/salchifacts"
 	"telegram-bot/internal/bot/internal/template"
 )
 
@@ -32,6 +32,6 @@ func (tb *TelegramBot) createPetRecord(c tele.Context) error {
 
 // getSalchiFact returns a random fact about perros salchichas
 func (tb *TelegramBot) getSalchiFact(c tele.Context) error {
-	fact := salchifact.GetFact()
+	fact := salchifacts.GetFact()
 	return c.Send(fact)
 }
