@@ -5,11 +5,16 @@ import (
 	"fmt"
 	"github.com/enescakir/emoji"
 	tele "gopkg.in/telebot.v3"
+	"math"
 	"regexp"
 	"strings"
+	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/bot/internal/salchifacts"
 	"telegram-bot/internal/bot/internal/template"
 	"telegram-bot/internal/bot/internal/validator"
+	"telegram-bot/internal/domain"
+	"telegram-bot/internal/requester"
+	"telegram-bot/internal/utils"
 	"telegram-bot/internal/utils/formatter"
 	"time"
 )
@@ -19,20 +24,13 @@ const (
 	nameTag      = "Name"
 	birthDateTag = "BirthDate"
 	typeTag      = "Type"
+	hoursInAYear = 365 * 24
 )
 
-type PetRequest struct {
-	Name         string    `json:"name"`
-	Type         string    `json:"type"`
-	RegisterDate time.Time `json:"register_date"`
-	BirthDate    string    `json:"birth_date"`
-	OwnerID      int64     `json:"owner_id"`
-}
-
-func NewPetRequest(petData map[string]string, userID int64) PetRequest {
+func NewPetRequest(petData map[string]string, userID int64) domain.PetRequest {
 	date := strings.Split(petData[birthDateTag], "/")
 	dateFormatted := strings.Join(date, "-")
-	return PetRequest{
+	return domain.PetRequest{
 		Name:         formatter.Capitalize(petData[nameTag]),
 		Type:         strings.ToLower(petData[typeTag]),
 		BirthDate:    dateFormatted,
@@ -92,9 +90,84 @@ func (tb *TelegramBot) createPetRecord(c tele.Context) error {
 	}
 
 	petRequest := NewPetRequest(petData, senderInfo.ID)
-	fmt.Printf("La info de tu mascota es: %+v\n", petRequest)
+
+	err = tb.requester.RegisterPet(petRequest)
+	if err != nil {
+		fmt.Printf("hubo un error creando la mascota: %v", err)
+		return c.Send("error creando la mascota al hacer la request")
+	}
 
 	return c.Send("Pet record created correctly")
+}
+
+// getPets search for the owner's pets based on telegram ID
+func (tb *TelegramBot) getPets(c tele.Context) error {
+	senderInfo := c.Sender()
+	if senderInfo == nil {
+		return fmt.Errorf("error sender info not found")
+	}
+
+	petsData, err := tb.requester.GetPetsByOwnerID(senderInfo.ID)
+
+	var requestError requester.RequestError
+	ok := errors.As(err, &requestError)
+	if ok && requestError.IsNotFound() {
+		return c.Send("You don't have any pet registered yet")
+	}
+
+	if err != nil {
+		fmt.Printf("\n el error: %v", err)
+		return c.Send("error searching your pets")
+	}
+
+	petsMenu := tb.bot.NewMarkup()
+
+	var petRows []tele.Row
+	for _, petData := range petsData {
+		petEmoji := utils.GetEmojiForPetType(petData.Type)
+		buttonText := fmt.Sprintf("%s %v", petData.Name, petEmoji)
+
+		diff := time.Since(petData.BirthDate).Hours() / hoursInAYear
+		age := fmt.Sprintf("%v", int(math.Round(diff)))
+
+		petButton := petsMenu.Data(buttonText, button.PetInfo.Unique, petData.Name, fmt.Sprintf("%v", petData.ID), petData.Type, age)
+		petRows = append(petRows, petsMenu.Row(petButton))
+	}
+
+	petsMenu.Inline(petRows...)
+
+	return c.Send("Select a pet", petsMenu)
+}
+
+func (tb *TelegramBot) getPetInfo(c tele.Context) error {
+	petData := strings.Split(c.Data(), "|")
+
+	// petData.Name, fmt.Sprintf("%v", petData.ID), petData.Type, age
+
+	message := fmt.Sprintf("%s \n\n", petData[0])
+	petInfoItems := []string{
+		fmt.Sprintf("Age: %v", petData[3]),
+		fmt.Sprintf("Type: %s", petData[2]),
+	}
+
+	message += formatter.UnorderedList(petInfoItems)
+
+	petInfoMenu := tb.bot.NewMarkup()
+
+	petInfoMenu.Inline(
+		petInfoMenu.Row(button.MedicalHistoryButton),
+		petInfoMenu.Row(button.VaccinesButton),
+	)
+
+	return c.Send(message, petInfoMenu)
+}
+
+func (tb *TelegramBot) showVaccines(c tele.Context) error {
+	return nil
+}
+
+func (tb *TelegramBot) medicalHistory(q *tele.Query) error {
+	return tb.bot.Answer(q, &tele.QueryResponse{})
 }
 
 // getSalchiFact returns a random fact about perros salchichas
