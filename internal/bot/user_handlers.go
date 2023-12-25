@@ -18,8 +18,7 @@ func (tb *TelegramBot) start(c tele.Context) error {
 		return fmt.Errorf("error user info not found")
 	}
 
-	userInfo, found := tb.db.GetUser(senderInfo.ID)
-	if !found {
+	if !tb.usersDB[senderInfo.ID] {
 		button.Menu.Inline(
 			button.Menu.Row(button.CreateAccount),
 			button.Menu.Row(button.DontCreateAccount),
@@ -36,7 +35,7 @@ func (tb *TelegramBot) start(c tele.Context) error {
 		return c.Send(message, button.Menu)
 	}
 
-	welcomeMessage := template.WelcomeMessage(userInfo.GetName())
+	welcomeMessage := template.WelcomeMessage(senderInfo.FirstName)
 	return c.Send(welcomeMessage)
 }
 
@@ -47,7 +46,7 @@ func (tb *TelegramBot) createAccount(c tele.Context) error {
 		return fmt.Errorf("%w", errUserInfoNotFound)
 	}
 
-	tb.db.AddUser(*senderInfo)
+	tb.usersDB[senderInfo.ID] = true
 
 	signUpButton := button.SignUpButton(senderInfo.ID)
 	message := fmt.Sprintf("Click below to sign up %s", emoji.BackhandIndexPointingDown)

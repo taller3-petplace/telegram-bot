@@ -19,7 +19,7 @@ func WelcomeMessage(userName string) string {
 	message := fmt.Sprintf(
 		"Welcome to Pet Place, %s! I'm Ringot and I'll help you to perform different operations from Telegram %s. My features are:\n\n",
 		userName,
-		emoji.Airplane,
+		emoji.SmallAirplane,
 	)
 
 	return message + Commands()

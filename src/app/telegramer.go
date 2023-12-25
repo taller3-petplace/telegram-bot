@@ -6,7 +6,6 @@ import (
 	tele "gopkg.in/telebot.v3"
 	"os"
 	"telegram-bot/internal/bot"
-	"telegram-bot/internal/db"
 	"telegram-bot/internal/requester"
 	"time"
 )
@@ -47,8 +46,7 @@ func NewTelegramer() (*Telegramer, error) {
 		return nil, err
 	}
 
-	fakeDB := db.NewFakeDB()
-	telegramBot := bot.NewTelegramBot(botInstance, fakeDB, serviceRequester)
+	telegramBot := bot.NewTelegramBot(botInstance, serviceRequester)
 
 	return &Telegramer{
 		telegramBot: telegramBot,

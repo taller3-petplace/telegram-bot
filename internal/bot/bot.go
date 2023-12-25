@@ -3,7 +3,6 @@ package bot
 import (
 	tele "gopkg.in/telebot.v3"
 	"telegram-bot/internal/bot/internal/button"
-	"telegram-bot/internal/db"
 	"telegram-bot/internal/requester"
 )
 
@@ -24,15 +23,16 @@ const (
 // TelegramBot ToDo: add documentation
 type TelegramBot struct {
 	bot       *tele.Bot
-	db        *db.FakeDB
+	usersDB   map[int64]bool
 	requester *requester.Requester
 }
 
-func NewTelegramBot(bot *tele.Bot, db *db.FakeDB, requester *requester.Requester) *TelegramBot {
+func NewTelegramBot(bot *tele.Bot, requester *requester.Requester) *TelegramBot {
+	usersDB := make(map[int64]bool)
 	return &TelegramBot{
 		bot:       bot,
-		db:        db,
 		requester: requester,
+		usersDB:   usersDB,
 	}
 }
 
