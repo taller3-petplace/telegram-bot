@@ -1,18 +1,21 @@
 pets_service:
-  base: 'https://locallhost.com'
+  base: 'http://localhost:8712/pets'
   endpoints:
     register_pet:
       path: '/pet'
+      method: 'POST'
     get_pets:
       path: '/owner/{owner_id}'
+      method: 'GET'
       query_params:
         offset: 0
         limit: 100
     get_pet_by_id:
       path: '/pet/{pet_id}'
+      method: 'GET'
 
 treatments_service:
-  base: 'https://locallhost.com'
+  base: 'http://localhost:8712/pets'
 
 users_service:
-  base: 'https://locallhost.com'
+  base: 'http://localhost:8712/pets'
