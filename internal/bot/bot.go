@@ -4,6 +4,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/db"
+	"telegram-bot/internal/requester"
 )
 
 const (
@@ -15,20 +16,23 @@ const (
 	startEndpoint       = "/start"
 	helpEndpoint        = "/help"
 	createPetEndpoint   = "/createPet"
+	getPets             = "/getPets"
 	registerPetEndpoint = "/addPetRecord"
 	salchiFactEndpoint  = "/salchiFact"
 )
 
 // TelegramBot ToDo: add documentation
 type TelegramBot struct {
-	bot *tele.Bot
-	db  *db.FakeDB
+	bot       *tele.Bot
+	db        *db.FakeDB
+	requester *requester.Requester
 }
 
-func NewTelegramBot(bot *tele.Bot, db *db.FakeDB) *TelegramBot {
+func NewTelegramBot(bot *tele.Bot, db *db.FakeDB, requester *requester.Requester) *TelegramBot {
 	return &TelegramBot{
-		bot: bot,
-		db:  db,
+		bot:       bot,
+		db:        db,
+		requester: requester,
 	}
 }
 
@@ -41,6 +45,8 @@ func (tb *TelegramBot) DefineHandlers() {
 
 	tb.bot.Handle(createPetEndpoint, tb.createPet)
 
+	tb.bot.Handle(getPets, tb.getPets)
+
 	tb.bot.Handle(salchiFactEndpoint, tb.getSalchiFact)
 
 	// Button handlers
@@ -48,10 +54,18 @@ func (tb *TelegramBot) DefineHandlers() {
 
 	tb.bot.Handle(&button.DontCreateAccount, tb.omitAccountCreation)
 
+	tb.bot.Handle(&button.PetInfo, tb.getPetInfo)
+
+	//tb.bot.Handle(&button.MedicalHistoryButton, tb.medicalHistory)
+
+	tb.bot.Handle(&button.VaccinesButton, tb.showVaccines)
+
 	// Action handlers
 	tb.bot.Handle(tele.OnText, tb.textHandler)
 
 	tb.bot.Handle(tele.OnEdited, tb.editMessageHandler)
+
+	//tb.bot.Handle(tele.OnQuery, tb.medicalHistory)
 }
 
 func (tb *TelegramBot) StartBot() {

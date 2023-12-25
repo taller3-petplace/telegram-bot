@@ -7,6 +7,7 @@ import (
 	"os"
 	"telegram-bot/internal/bot"
 	"telegram-bot/internal/db"
+	"telegram-bot/internal/requester"
 	"time"
 )
 
@@ -41,8 +42,13 @@ func NewTelegramer() (*Telegramer, error) {
 		return nil, err
 	}
 
+	serviceRequester, err := requester.NewRequester()
+	if err != nil {
+		return nil, err
+	}
+
 	fakeDB := db.NewFakeDB()
-	telegramBot := bot.NewTelegramBot(botInstance, fakeDB)
+	telegramBot := bot.NewTelegramBot(botInstance, fakeDB, serviceRequester)
 
 	return &Telegramer{
 		telegramBot: telegramBot,
