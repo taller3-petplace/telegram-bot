@@ -32,6 +32,11 @@ func TestValidateDateType(t *testing.T) {
 			Date:         "2023/12/10",
 			ExpectsError: false,
 		},
+		{
+			Name:         "Valid format but is in the future",
+			Date:         "3000/12/10",
+			ExpectsError: true,
+		},
 	}
 
 	for _, testCase := range testCases {

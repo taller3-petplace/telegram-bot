@@ -107,9 +107,18 @@ func ValidatePetType(petType string) error {
 }
 
 // ValidateDateType checks if the format is year/month/day
-func ValidateDateType(date string) error {
-	_, err := time.Parse(layout, date)
-	return err
+func ValidateDateType(rawDate string) error {
+	date, err := time.Parse(layout, rawDate)
+	if err != nil {
+		return err
+	}
+
+	diff := utils.CalculateYearsBetweenDates(date)
+	if diff < 0 {
+		return fmt.Errorf("error date is from the future: ")
+	}
+
+	return nil
 }
 
 // ValidateHour checks if the given hour is valid based on the next rules:
