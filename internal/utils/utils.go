@@ -7,7 +7,10 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
+
+const hoursInAYear = 365 * 24
 
 var animalEmojisMap = map[string]emoji.Emoji{
 	"monkey":        emoji.Monkey,
@@ -122,4 +125,12 @@ func Contains[T comparable](elements []T, target T) bool {
 func GetEmojiForPetType(petType string) emoji.Emoji {
 	petType = strings.ToLower(petType)
 	return animalEmojisMap[petType]
+}
+
+// CalculateYearsBetweenDates calculates the amount of years between the given date and the current one
+func CalculateYearsBetweenDates(date time.Time) int {
+	diff := time.Now().Sub(date)
+
+	amountOfYears := diff.Hours() / hoursInAYear
+	return int(amountOfYears)
 }

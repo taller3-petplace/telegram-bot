@@ -55,3 +55,7 @@ func Commands() string {
 
 	return formatter.UnorderedList(commands)
 }
+
+func TryAgainMessage() string {
+	return "Something went wrong, please try again"
+}

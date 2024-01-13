@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestContains(t *testing.T) {
@@ -23,4 +24,11 @@ func TestContains(t *testing.T) {
 		assert.True(t, Contains(elements, 69.8))
 		assert.False(t, Contains(elements, 169.0))
 	})
+}
+
+func TestCalculateYearsBetweenDates(t *testing.T) {
+	pastTime := time.Now().AddDate(-3, 0, 0)
+	futureTime := time.Now().AddDate(69, 0, 0)
+	assert.Equal(t, 3, CalculateYearsBetweenDates(pastTime))
+	assert.Equal(t, -69, CalculateYearsBetweenDates(futureTime))
 }

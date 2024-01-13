@@ -6,6 +6,7 @@ import (
 	"github.com/enescakir/emoji"
 	tele "gopkg.in/telebot.v3"
 	"regexp"
+	"strconv"
 	"strings"
 	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/bot/internal/salchifacts"
@@ -139,12 +140,35 @@ func (tb *TelegramBot) getPets(c tele.Context) error {
 
 // getPetInfo shows the information about the selected pet
 func (tb *TelegramBot) getPetInfo(c tele.Context) error {
-	petData := strings.Split(c.Data(), "|")
+	params := strings.Split(c.Data(), "|")
 
-	message := fmt.Sprintf("%s \n\n", petData[0])
+	if len(params) != 1 {
+		return c.Send(template.TryAgainMessage())
+	}
+
+	petID := params[0]
+	petIDInt, err := strconv.Atoi(petID)
+	if err != nil {
+		fmt.Printf("invalid petID: %s\n", petID)
+		return c.Send(template.TryAgainMessage())
+	}
+
+	petData, err := tb.requester.GetPetData(petIDInt)
+
+	var requestError requester.RequestError
+	ok := errors.As(err, &requestError)
+	if ok && requestError.IsNotFound() || requestError.IsNoContent() {
+		return c.Send("Cannot find information about the selected pet")
+	}
+
+	if err != nil {
+		fmt.Printf("error fetching pet data: petID: %s - error: %v\n", petID, err)
+	}
+
+	message := fmt.Sprintf("%s \n\n", petData.Name)
 	petInfoItems := []string{
-		fmt.Sprintf("Age: %v", petData[3]),
-		fmt.Sprintf("Type: %s", petData[2]),
+		fmt.Sprintf("Age: %v", utils.CalculateYearsBetweenDates(petData.BirthDate)),
+		fmt.Sprintf("Type: %s %s", petData.Type, utils.GetEmojiForPetType(petData.Type)),
 	}
 
 	message += formatter.UnorderedList(petInfoItems)
