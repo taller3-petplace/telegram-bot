@@ -38,7 +38,7 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataIdentifier,
 	}
 
 	defer func() {
-		if response != nil {
+		if response != nil && response.Body != nil {
 			_ = response.Body.Close()
 		}
 	}()
@@ -112,7 +112,9 @@ func (r *Requester) RegisterPet(petDataRequest domain.PetRequest) error {
 	}
 
 	defer func() {
-		_ = response.Body.Close()
+		if response != nil && response.Body != nil {
+			_ = response.Body.Close()
+		}
 	}()
 
 	if response == nil {
