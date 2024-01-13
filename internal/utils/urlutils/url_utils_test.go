@@ -1,4 +1,4 @@
-package requester
+package urlutils
 
 import (
 	"fmt"
@@ -35,7 +35,7 @@ func TestFormatURL(t *testing.T) {
 }
 
 func TestSarasa(t *testing.T) {
-	url := "https://locallhost.com/owner/{owner_id}"
+	url := "https://te/estas/portando/mal/{owner_id}"
 
 	url = FormatURL(url, map[string]string{"owner_id": "12345"})
 

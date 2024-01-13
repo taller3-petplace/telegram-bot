@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/enescakir/emoji"
 	tele "gopkg.in/telebot.v3"
-	"math"
 	"regexp"
 	"strings"
 	"telegram-bot/internal/bot/internal/button"
@@ -127,10 +126,7 @@ func (tb *TelegramBot) getPets(c tele.Context) error {
 		petEmoji := utils.GetEmojiForPetType(petData.Type)
 		buttonText := fmt.Sprintf("%s %v", petData.Name, petEmoji)
 
-		diff := time.Since(petData.BirthDate).Hours() / hoursInAYear
-		age := fmt.Sprintf("%v", int(math.Round(diff)))
-
-		petButton := petsMenu.Data(buttonText, button.PetInfo.Unique, petData.Name, fmt.Sprintf("%v", petData.ID), petData.Type, age)
+		petButton := petsMenu.Data(buttonText, button.PetInfo.Unique, fmt.Sprintf("%v", petData.ID))
 		petRows = append(petRows, petsMenu.Row(petButton))
 	}
 

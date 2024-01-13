@@ -11,17 +11,26 @@ type PetRequest struct {
 	OwnerID      int64     `json:"owner_id"`
 }
 
-// PetDataSummary contains brief information about the pet
-type PetDataSummary struct {
+// PetDataIdentifier brief data to identify a pet
+type PetDataIdentifier struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+// PetData general data for a pet. Does not contain anything about treatments
+type PetData struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
 	BirthDate time.Time `json:"birth_date"`
 	Type      string    `json:"type"`
+	Race      string    `json:"race,omitempty"`
 }
 
+// PetsData groups data from different pets for a given user
 type PetsData struct {
-	PetsData []PetDataSummary `json:"results"`
-	Paging   Paging           `json:"paging"`
+	PetsData []PetData `json:"results"`
+	Paging   Paging    `json:"paging"`
 }
 
 type Paging struct {

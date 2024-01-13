@@ -4,45 +4,31 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v2"
 	"io"
 	"net/http"
-	"regexp"
 	"telegram-bot/internal/domain"
+	"telegram-bot/internal/requester/internal/config"
 	"telegram-bot/internal/utils"
+	"telegram-bot/internal/utils/urlutils"
 	"time"
 )
 
 const (
-	getPets     = "get_pets"
-	registerPet = "register_pet"
+	getPets        = "get_pets"
+	registerPet    = "register_pet"
+	configFilePath = "internal/config/config.json"
 )
 
 type Requester struct {
-	PetsService       serviceEndpoints `yaml:"pets_service"`
-	TreatmentsService serviceEndpoints `yaml:"treatments_service"`
-	UsersService      serviceEndpoints `yaml:"users_service"`
+	PetsService       config.ServiceEndpoints `json:"pets_service"`
+	TreatmentsService config.ServiceEndpoints `json:"treatments_service"`
+	UsersService      config.ServiceEndpoints `json:"users_service"`
 	clientHttp        http.Client
 }
 
-type serviceEndpoints struct {
-	Base      string              `yaml:"base"`
-	Endpoints map[string]endpoint `yaml:"endpoints"`
-}
-
-type endpoint struct {
-	Path        string       `yaml:"path"`
-	Method      string       `yaml:"method"`
-	QueryParams *queryParams `yaml:"query_params"`
-}
-
-type queryParams struct {
-	Offset int `yaml:"offset"`
-	Limit  int `yaml:"limit"`
-}
-
 func NewRequester() (*Requester, error) {
-	rawFileData, err := utils.ReadFileWithPath("internal/config/config.yml", "requester.go")
+	rawFileData, err := utils.ReadFileWithPath(configFilePath, "requester.go")
 	if err != nil {
 		return nil, err
 	}
@@ -56,25 +42,22 @@ func NewRequester() (*Requester, error) {
 	return &requester, nil
 }
 
-func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataSummary, error) {
+func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataIdentifier, error) {
 	operation := "GetPetsByOwnerID"
 	endpointData, endpointExists := r.PetsService.Endpoints[getPets]
 	if !endpointExists {
 		return nil, fmt.Errorf("%w: %s", errEndpointDoesNotExist, getPets)
 	}
 
+	// ToDo: perform this in Unmarshall
 	url := r.PetsService.Base + endpointData.Path
-	url = FormatURL(url, map[string]string{"owner_id": fmt.Sprintf("%v", ownerID)})
+	url = urlutils.FormatURL(url, map[string]string{"owner_id": fmt.Sprintf("%v", ownerID)})
 	request, err := http.NewRequest(endpointData.Method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error doing getPets request: %v", err)
 	}
 
-	// ToDo: function to add query params
-	queryParamsValues := request.URL.Query()
-	queryParamsValues.Add("limit", fmt.Sprintf("%v", endpointData.QueryParams.Limit))
-	queryParamsValues.Add("offset", fmt.Sprintf("%v", endpointData.QueryParams.Offset))
-	request.URL.RawQuery = queryParamsValues.Encode()
+	urlutils.AddQueryParams(request, endpointData.QueryParams.ToMap())
 
 	r.clientHttp.Timeout = 5 * time.Second
 
@@ -118,7 +101,7 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataSummary, er
 		)
 	}
 
-	var petsData domain.PetsData
+	var petsData []domain.PetDataIdentifier
 	err = json.Unmarshal(responseBody, &petsData)
 	if err != nil {
 		return nil, NewRequestError(
@@ -128,7 +111,7 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataSummary, er
 		)
 	}
 
-	return petsData.PetsData, nil
+	return petsData, nil
 }
 
 func (r *Requester) RegisterPet(petDataRequest domain.PetRequest) error {
@@ -181,15 +164,4 @@ func (r *Requester) RegisterPet(petDataRequest domain.PetRequest) error {
 	}
 
 	return nil
-}
-
-// FormatURL formats the given URL setting the values from the map to it. Is not-in-place
-func FormatURL(url string, params map[string]string) string {
-	formattedURL := url
-	for param, value := range params {
-		regex := regexp.MustCompile(fmt.Sprintf("{%s}", param))
-		formattedURL = regex.ReplaceAllString(formattedURL, value)
-	}
-
-	return formattedURL
 }
