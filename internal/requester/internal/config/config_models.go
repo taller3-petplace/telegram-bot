@@ -31,7 +31,7 @@ func (se *ServiceEndpoints) UnmarshalJSON(rawServiceData []byte) error {
 	se.Endpoints = serviceEndpoints.Endpoints
 
 	for key, endpointData := range se.Endpoints {
-		endpointData.setBaseURL(se.Base)
+		endpointData.SetBaseURL(se.Base)
 		se.Endpoints[key] = endpointData
 	}
 
@@ -55,7 +55,7 @@ type Endpoint struct {
 	baseURL     string
 }
 
-func (e *Endpoint) setBaseURL(base string) {
+func (e *Endpoint) SetBaseURL(base string) {
 	e.baseURL = base
 }
 

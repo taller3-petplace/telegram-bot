@@ -90,6 +90,10 @@ func (re requestError) Error() string {
 	return fmt.Sprintf("%d - %v: %s", re.statusCode, re.err, re.extraData)
 }
 
+func (re requestError) Is(target error) bool {
+	return errors.Is(re.err, target)
+}
+
 func (re requestError) IsNoContent() bool {
 	return re.statusCode == http.StatusNoContent
 }

@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"telegram-bot/internal/domain"
 	"telegram-bot/internal/utils/urlutils"
-	"time"
 )
 
 func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataIdentifier, error) {
@@ -22,14 +21,14 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataIdentifier,
 	url = urlutils.FormatURL(url, map[string]string{"ownerID": fmt.Sprintf("%v", ownerID)})
 	request, err := http.NewRequest(endpointData.Method, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error doing getPets request: %v", err)
+		return nil, fmt.Errorf("%w: %v. Operation: %s", errCreatingRequest, err, operation)
 	}
 
-	urlutils.AddQueryParams(request, endpointData.QueryParams.ToMap())
+	if endpointData.QueryParams != nil {
+		urlutils.AddQueryParams(request, endpointData.QueryParams.ToMap())
+	}
 
-	r.clientHttp.Timeout = 5 * time.Second
-
-	response, err := r.clientHttp.Do(request)
+	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		return nil, NewRequestError(
 			fmt.Errorf("%w %s", errPerformingRequest, operation),
@@ -39,7 +38,9 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataIdentifier,
 	}
 
 	defer func() {
-		_ = response.Body.Close()
+		if response != nil {
+			_ = response.Body.Close()
+		}
 	}()
 
 	if response == nil {
@@ -83,12 +84,13 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetDataIdentifier,
 }
 
 func (r *Requester) RegisterPet(petDataRequest domain.PetRequest) error {
+	operation := "RegisterPet"
 	endpointData, endpointExists := r.PetsService.Endpoints[registerPet]
 	if !endpointExists {
 		return fmt.Errorf("%w: %s", errEndpointDoesNotExist, registerPet)
 	}
 
-	url := r.PetsService.Base + endpointData.Path
+	url := endpointData.GetURL()
 	rawBody, err := json.Marshal(petDataRequest)
 	if err != nil {
 		return fmt.Errorf("%w: %v", errMarshallingPetRequest, err)
@@ -100,11 +102,10 @@ func (r *Requester) RegisterPet(petDataRequest domain.PetRequest) error {
 		return fmt.Errorf("%w: %v", errCreatingRequest, err)
 	}
 
-	r.clientHttp.Timeout = 5 * time.Second
-	response, err := r.clientHttp.Do(request)
+	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		return NewRequestError(
-			fmt.Errorf("%w RegisterPet", errPerformingRequest),
+			fmt.Errorf("%w %s", errPerformingRequest, operation),
 			http.StatusInternalServerError,
 			err.Error(),
 		)
@@ -118,7 +119,7 @@ func (r *Requester) RegisterPet(petDataRequest domain.PetRequest) error {
 		return NewRequestError(
 			errNilResponse,
 			http.StatusInternalServerError,
-			"RegisterPet",
+			operation,
 		)
 	}
 

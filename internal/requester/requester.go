@@ -13,14 +13,18 @@ const (
 	configFilePath = "internal/config/config.json"
 )
 
+type httpClienter interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Requester struct {
 	PetsService       config.ServiceEndpoints `json:"pets_service"`
 	TreatmentsService config.ServiceEndpoints `json:"treatments_service"`
 	UsersService      config.ServiceEndpoints `json:"users_service"`
-	clientHttp        http.Client
+	clientHTTP        httpClienter
 }
 
-func NewRequester() (*Requester, error) {
+func NewRequester(client httpClienter) (*Requester, error) {
 	rawFileData, err := utils.ReadFileWithPath(configFilePath, "requester.go")
 	if err != nil {
 		return nil, err
@@ -31,6 +35,8 @@ func NewRequester() (*Requester, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	requester.clientHTTP = client
 
 	return &requester, nil
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	env "github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v3"
+	"net/http"
 	"os"
 	"telegram-bot/internal/bot"
 	"telegram-bot/internal/requester"
@@ -41,7 +42,8 @@ func NewTelegramer() (*Telegramer, error) {
 		return nil, err
 	}
 
-	serviceRequester, err := requester.NewRequester()
+	client := &http.Client{Timeout: 5 * time.Second}
+	serviceRequester, err := requester.NewRequester(client)
 	if err != nil {
 		return nil, err
 	}
