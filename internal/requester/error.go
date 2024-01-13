@@ -31,14 +31,15 @@ type serviceError interface {
 }
 
 var (
-	errEndpointDoesNotExist       = errors.New("error endpoint does not exist")
-	errPerformingRequest          = errors.New("error performing request")
-	errReadingResponseBody        = errors.New("error reading response body")
-	errUnmarshallingPetsData      = errors.New("error unmarshalling pets data")
-	errMarshallingPetRequest      = errors.New("error marshalling pet request")
-	errCreatingRequest            = errors.New("error creating request")
-	errNilResponse                = errors.New("error nil response")
-	errUnmarshallingErrorResponse = errors.New("error unmarshalling error response")
+	errEndpointDoesNotExist          = errors.New("error endpoint does not exist")
+	errPerformingRequest             = errors.New("error performing request")
+	errReadingResponseBody           = errors.New("error reading response body")
+	errUnmarshallingMultiplePetsData = errors.New("error unmarshalling multiple pets data")
+	errUnmarshallingPetData          = errors.New("error unmarshalling pet data")
+	errMarshallingPetRequest         = errors.New("error marshalling pet request")
+	errCreatingRequest               = errors.New("error creating request")
+	errNilResponse                   = errors.New("error nil response")
+	errUnmarshallingErrorResponse    = errors.New("error unmarshalling error response")
 )
 
 func ErrPolicyFunc[serviceErrorType serviceError](response *http.Response) error {

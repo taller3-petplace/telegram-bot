@@ -20,10 +20,8 @@ type PetDataIdentifier struct {
 
 // PetData general data for a pet. Does not contain anything about treatments
 type PetData struct {
-	ID        int       `json:"id"`
-	Name      string    `json:"name"`
+	PetDataIdentifier
 	BirthDate time.Time `json:"birth_date"`
-	Type      string    `json:"type"`
 	Race      string    `json:"race,omitempty"`
 }
 

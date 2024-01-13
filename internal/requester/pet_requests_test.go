@@ -18,6 +18,7 @@ import (
 
 const (
 	ownerID     = int64(69)
+	petID       = 1
 	testBaseURL = "https://test"
 )
 
@@ -142,16 +143,20 @@ func TestRequesterGetPetsByOwnerID(t *testing.T) {
 	serviceErrorRaw, err := json.Marshal(petsServiceError)
 	require.NoError(t, err)
 
-	petsData := []domain.PetDataIdentifier{
+	petsData := []domain.PetData{
 		{
-			ID:   1,
-			Name: "Cartucho",
-			Type: "DOG",
+			PetDataIdentifier: domain.PetDataIdentifier{
+				ID:   1,
+				Name: "Cartucho",
+				Type: "DOG",
+			},
 		},
 		{
-			ID:   2,
-			Name: "Pantufla",
-			Type: "CAT",
+			PetDataIdentifier: domain.PetDataIdentifier{
+				ID:   2,
+				Name: "Pantufla",
+				Type: "CAT",
+			},
 		},
 	}
 
@@ -164,7 +169,7 @@ func TestRequesterGetPetsByOwnerID(t *testing.T) {
 		ClientMockConfig *clientMockConfig
 		ExpectsError     bool
 		ExpectedError    error
-		ExpectedPetsData []domain.PetDataIdentifier
+		ExpectedPetsData []domain.PetData
 	}{
 		{
 			Name: "Endpoint does not exist",
@@ -228,7 +233,7 @@ func TestRequesterGetPetsByOwnerID(t *testing.T) {
 				Err: nil,
 			},
 			ExpectsError:  true,
-			ExpectedError: errUnmarshallingPetsData,
+			ExpectedError: errUnmarshallingMultiplePetsData,
 		},
 		{
 			Name:      "Get pets data correctly",
@@ -391,6 +396,159 @@ func TestRequesterRegisterPet(t *testing.T) {
 			}
 
 			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestRequesterGetPetDataByID(t *testing.T) {
+	petsServiceEndpoints := getExpectedPetsServiceEndpoints()
+	getPetsByIDEndpoint := petsServiceEndpoints[getPetByID]
+	getPetsByIDEndpoint.SetBaseURL(testBaseURL)
+
+	invalidEndpoint := petsServiceEndpoints[getPetByID]
+	invalidEndpoint.Method = "japiaguar - bruja"
+
+	requester := Requester{
+		PetsService: config.ServiceEndpoints{
+			Endpoints: petsServiceEndpoints,
+		},
+	}
+
+	petsServiceError := petServiceErrorResponse{
+		Status:  http.StatusInternalServerError,
+		Message: "error te pones loquita de noche",
+	}
+	serviceErrorRaw, err := json.Marshal(petsServiceError)
+	require.NoError(t, err)
+
+	petData := domain.PetData{
+		PetDataIdentifier: domain.PetDataIdentifier{
+			ID:   petID,
+			Name: "Cartucho",
+			Type: "DOG",
+		},
+		Race:      "Perro salchicha",
+		BirthDate: time.Now(),
+	}
+
+	rawPetData, err := json.Marshal(petData)
+	require.NoError(t, err)
+
+	testCases := []struct {
+		Name             string
+		Requester        Requester
+		ClientMockConfig *clientMockConfig
+		ExpectsError     bool
+		ExpectedError    error
+		ExpectedPetData  domain.PetData
+	}{
+		{
+			Name: "Endpoint does not exist",
+			Requester: Requester{
+				PetsService: config.ServiceEndpoints{Endpoints: map[string]config.Endpoint{}},
+			},
+			ExpectsError:  true,
+			ExpectedError: errEndpointDoesNotExist,
+		},
+		{
+			Name: "Error creating request",
+			Requester: Requester{
+				PetsService: config.ServiceEndpoints{Endpoints: map[string]config.Endpoint{
+					getPetByID: invalidEndpoint,
+				}},
+			},
+			ExpectsError:  true,
+			ExpectedError: errCreatingRequest,
+		},
+		{
+			Name:      "Error performing request",
+			Requester: requester,
+			ClientMockConfig: &clientMockConfig{
+				ResponseBody: nil,
+				Err:          fmt.Errorf("internal error performing request"),
+			},
+			ExpectsError:  true,
+			ExpectedError: errPerformingRequest,
+		},
+		{
+			Name:      "Error nil response",
+			Requester: requester,
+			ClientMockConfig: &clientMockConfig{
+				ResponseBody: nil,
+				Err:          nil,
+			},
+			ExpectsError:  true,
+			ExpectedError: errNilResponse,
+		},
+		{
+			Name:      "Error from pets service",
+			Requester: requester,
+			ClientMockConfig: &clientMockConfig{
+				ResponseBody: &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Body:       io.NopCloser(bytes.NewBuffer(serviceErrorRaw)),
+				},
+				Err: nil,
+			},
+			ExpectsError:  true,
+			ExpectedError: fmt.Errorf(petsServiceError.GetMessage()),
+		},
+		{
+			Name:      "Error unmarshalling pets data",
+			Requester: requester,
+			ClientMockConfig: &clientMockConfig{
+				ResponseBody: &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBufferString(`{"id": "69abc"}`)),
+				},
+				Err: nil,
+			},
+			ExpectsError:  true,
+			ExpectedError: errUnmarshallingPetData,
+		},
+		{
+			Name:      "Get pet data correctly",
+			Requester: requester,
+			ClientMockConfig: &clientMockConfig{
+				ResponseBody: &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBuffer(rawPetData)),
+				},
+				Err: nil,
+			},
+			ExpectsError:    false,
+			ExpectedPetData: petData,
+			ExpectedError:   nil,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			clientMock := mock.NewMockhttpClienter(gomock.NewController(t))
+			if testCase.ClientMockConfig != nil {
+				clientMock.EXPECT().
+					Do(gomock.Any()).
+					Return(testCase.ClientMockConfig.ResponseBody, testCase.ClientMockConfig.Err)
+			}
+
+			testCase.Requester.clientHTTP = clientMock
+			petDataResponse, err := testCase.Requester.GetPetData(petID)
+			if testCase.ExpectsError {
+				assert.ErrorContains(t, err, testCase.ExpectedError.Error())
+				return
+			}
+
+			assert.NoError(t, err)
+			// We need to check one by one, otherwise we get an error
+			assert.Equal(t, testCase.ExpectedPetData.BirthDate.Year(), petDataResponse.BirthDate.Year())
+			assert.Equal(t, testCase.ExpectedPetData.BirthDate.Month(), petDataResponse.BirthDate.Month())
+			assert.Equal(t, testCase.ExpectedPetData.BirthDate.Day(), petDataResponse.BirthDate.Day())
+
+			timeAux := time.Now()
+			testCase.ExpectedPetData.BirthDate = timeAux
+			petDataResponse.BirthDate = timeAux
+
+			assert.Equal(t, testCase.ExpectedPetData, petDataResponse, "pet data do not match")
 		})
 	}
 }

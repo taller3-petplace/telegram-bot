@@ -8,8 +8,6 @@ import (
 )
 
 const (
-	getPets        = "get_pets"
-	registerPet    = "register_pet"
 	configFilePath = "internal/config/config.json"
 )
 
