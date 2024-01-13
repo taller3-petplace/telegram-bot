@@ -4,10 +4,10 @@ go 1.21.1
 
 require (
 	github.com/enescakir/emoji v1.0.0
+	github.com/golang/mock v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.8.0
 	gopkg.in/telebot.v3 v3.2.1
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
