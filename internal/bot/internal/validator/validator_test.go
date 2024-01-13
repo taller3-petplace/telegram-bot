@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -78,4 +79,24 @@ func TestValidatePetType(t *testing.T) {
 			assert.NoError(t, err)
 		})
 	}
+}
+
+func TestValidateHour(t *testing.T) {
+	validMinutes := []string{"00", "30"}
+	t.Run("Valid hours", func(t *testing.T) {
+		assert.NoError(t, ValidateHour("00:00"))
+
+		for hour := 0; hour < 24; hour++ {
+			for _, minute := range validMinutes {
+				hourFormatted := fmt.Sprintf("%v:%s", hour, minute)
+				assert.NoError(t, ValidateHour(hourFormatted))
+			}
+		}
+	})
+
+	t.Run("Invalid hours", func(t *testing.T) {
+		assert.Error(t, ValidateHour("25:00"))
+		assert.Error(t, ValidateHour("24:00"))
+		assert.Error(t, ValidateHour("10:35"))
+	})
 }

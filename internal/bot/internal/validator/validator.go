@@ -2,8 +2,10 @@ package validator
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"telegram-bot/internal/utils"
+	"telegram-bot/internal/utils/formatter"
 	"time"
 )
 
@@ -108,4 +110,19 @@ func ValidatePetType(petType string) error {
 func ValidateDateType(date string) error {
 	_, err := time.Parse(layout, date)
 	return err
+}
+
+// ValidateHour checks if the given hour is valid based on the next rules:
+// + Hour: integer between [0, 23]
+//
+// + Minutes: 0 or 30
+func ValidateHour(hour string) error {
+	regex := regexp.MustCompile(`(^0?[0-9]|1[0-9]|2[0-3]):(00|30)`)
+	if regex.MatchString(hour) {
+		return nil
+	}
+
+	validHourMessage := formatter.UnorderedList([]string{"Hour: integer between [0, 23]", "Minutes: 0 or 30"})
+
+	return fmt.Errorf("invalid hour for alarm: valid hour format is\n%s", validHourMessage)
 }
