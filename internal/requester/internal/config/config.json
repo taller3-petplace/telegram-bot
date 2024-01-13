@@ -11,7 +11,7 @@
       },
       "get_pets":
       {
-        "path": "/owner/{owner_id}",
+        "path": "/owner/{ownerID}",
         "method": "GET",
         "query_params":
         {
@@ -21,17 +21,38 @@
       },
       "get_pet_by_id":
       {
-        "path": "/pet/{pet_id}",
+        "path": "/pet/{petID}",
         "method": "GET"
       }
     }
   },
   "treatments_service":
   {
-    "base": "http://localhost:8712"
+    "base": "http://localhost:8712/treatments",
+    "endpoints": {
+      "get_pet_treatments": {
+        "path": "/treatment/pet/{petID}",
+        "method": "GET",
+        "query_params": {
+          "offset": 0,
+          "limit": 5
+        }
+      },
+      "get_treatment": {
+        "path": "/treatment/{treatmentID}",
+        "method": "GET"
+      }
+    }
   },
   "users_service":
   {
-    "base": "http://localhost:8712"
+    "base": "http://localhost:8712/users",
+    "endpoints": {
+      "user_fetcher":
+      {
+        "path": "/telegram_id/{telegramID}",
+        "method": "GET"
+      }
+    }
   }
 }
