@@ -61,18 +61,19 @@ func (tb *TelegramBot) createPet(c tele.Context) error {
 func (tb *TelegramBot) createPetRecord(c tele.Context) error {
 	senderInfo := c.Sender()
 	if senderInfo == nil {
-		return fmt.Errorf("error sender info not found")
+		_ = c.Send(errUserInfoNotFound.Error())
+		return errUserInfoNotFound
 	}
 
-	petData, err := extractPetData(c.Message().Text)
-	if err != nil && errors.Is(err, errInvalidPetForm) {
+	petData, err := extractPetData(c.Message().Text, nameTag, birthDateTag, typeTag)
+	if err != nil && errors.Is(err, errInvalidForm) {
 		return c.Send(fmt.Sprintf("%v Invalid form, you don't have to modify the structure, only the field values. %s",
 			emoji.PoliceCarLight,
 			tryAgainMessage,
 		))
 	}
 
-	if err != nil && errors.Is(err, errMissingPetField) {
+	if err != nil && errors.Is(err, errMissingFormField) {
 		return c.Send("%v %v. Try again editing the form message and adding the deleted field or execute /cretePet", emoji.PoliceCarLight, err)
 	}
 
@@ -103,7 +104,8 @@ func (tb *TelegramBot) createPetRecord(c tele.Context) error {
 func (tb *TelegramBot) getPets(c tele.Context) error {
 	senderInfo := c.Sender()
 	if senderInfo == nil {
-		return fmt.Errorf("error sender info not found")
+		_ = c.Send(errUserInfoNotFound.Error())
+		return errUserInfoNotFound
 	}
 
 	petsData, err := tb.requester.GetPetsByOwnerID(senderInfo.ID)
@@ -135,10 +137,9 @@ func (tb *TelegramBot) getPets(c tele.Context) error {
 	return c.Send("Select a pet", petsMenu)
 }
 
+// getPetInfo shows the information about the selected pet
 func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 	petData := strings.Split(c.Data(), "|")
-
-	// petData.Name, fmt.Sprintf("%v", petData.ID), petData.Type, age
 
 	message := fmt.Sprintf("%s \n\n", petData[0])
 	petInfoItems := []string{
@@ -159,11 +160,11 @@ func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 }
 
 func (tb *TelegramBot) showVaccines(c tele.Context) error {
-	return nil
+	return c.Send("implement me")
 }
 
-func (tb *TelegramBot) medicalHistory(q *tele.Query) error {
-	return tb.bot.Answer(q, &tele.QueryResponse{})
+func (tb *TelegramBot) medicalHistory(c tele.Context) error {
+	return c.Send("implement me")
 }
 
 // getSalchiFact returns a random fact about perros salchichas
@@ -172,12 +173,17 @@ func (tb *TelegramBot) getSalchiFact(c tele.Context) error {
 	return c.Send(fact)
 }
 
+// getVets returns the veterinaries near the location of the user
+func (tb *TelegramBot) getVets(c tele.Context) error {
+	return c.Send("implement me")
+}
+
 // extractPetData extracts pet data from the given message. Does not validate the fields, it only ensures that they are all present
 func extractPetData(petDataRaw string, fields ...string) (map[string]string, error) {
-	regex := regexp.MustCompile(`Name:\s?(?P<Name>[^\n]*)\s+Birth Date:\s?(?P<BirthDate>[^\n]*)\s+Type:\s?(?P<Type>[^\n]*)`)
+	regex := regexp.MustCompile(`Name:\s*(?P<Name>[^\n]*)\s+Birth Date:\s*(?P<BirthDate>[^\n]*)\s+Type:\s*(?P<Type>[^\n]*)`)
 	match := regex.FindStringSubmatch(petDataRaw)
 	if match == nil {
-		return nil, fmt.Errorf("%w", errInvalidPetForm)
+		return nil, fmt.Errorf("%w", errInvalidForm)
 	}
 
 	// groupName are capture from the regex expression
@@ -190,7 +196,7 @@ func extractPetData(petDataRaw string, fields ...string) (map[string]string, err
 
 	for _, field := range fields {
 		if _, found := petData[field]; !found {
-			return nil, fmt.Errorf("%w: %s", errMissingPetField, field)
+			return nil, fmt.Errorf("%w: %s", errMissingFormField, field)
 		}
 	}
 

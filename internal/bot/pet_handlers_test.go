@@ -61,19 +61,19 @@ func TestExtractPetDataErrorDueToInvalidForm(t *testing.T) {
 			Name:          "Empty form",
 			Form:          missingDotsInTypeField,
 			FieldTags:     fieldsTags,
-			ExpectedError: errInvalidPetForm,
+			ExpectedError: errInvalidForm,
 		},
 		{
 			Name:          "Form with fields in other order",
 			Form:          fieldsInOtherOrder,
 			FieldTags:     fieldsTags,
-			ExpectedError: errInvalidPetForm,
+			ExpectedError: errInvalidForm,
 		},
 		{
 			Name:          "Missing field tags",
 			Form:          validNormalForm,
 			FieldTags:     []string{nameTag, birthDateTag, typeTag, "random-tag"},
-			ExpectedError: errMissingPetField,
+			ExpectedError: errMissingFormField,
 		},
 	}
 

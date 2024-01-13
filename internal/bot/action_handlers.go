@@ -34,5 +34,9 @@ func (tb *TelegramBot) textHandler(c tele.Context) error {
 		return tb.createPetRecord(c)
 	}
 
+	if strings.Contains(message, registerAlarmEndpoint) {
+		return tb.registerAlarm(c)
+	}
+
 	return c.Send("I don't understand your input, execute /help to check what can I do for you")
 }

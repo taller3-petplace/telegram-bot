@@ -12,12 +12,15 @@ const (
 	botUsername = "@pet_place_bot"
 
 	// Endpoints
-	startEndpoint       = "/start"
-	helpEndpoint        = "/help"
-	createPetEndpoint   = "/createPet"
-	getPets             = "/getPets"
-	registerPetEndpoint = "/addPetRecord"
-	salchiFactEndpoint  = "/salchiFact"
+	startEndpoint         = "/start"
+	helpEndpoint          = "/help"
+	createPetEndpoint     = "/createPet"
+	getPets               = "/getPets"
+	registerPetEndpoint   = "/addPetRecord"
+	salchiFactEndpoint    = "/salchiFact"
+	setAlarmEndpoint      = "/setAlarm"
+	registerAlarmEndpoint = "/alarm"
+	getVetsEndpoint       = "/getVets"
 )
 
 // TelegramBot ToDo: add documentation
@@ -38,7 +41,7 @@ func NewTelegramBot(bot *tele.Bot, requester *requester.Requester) *TelegramBot 
 
 // DefineHandlers defines all methods that  TelegramBot can handle, is a not-blocking function
 func (tb *TelegramBot) DefineHandlers() {
-	// Endpoint handlers
+	// Endpoints handlers
 	tb.bot.Handle(helpEndpoint, tb.help)
 
 	tb.bot.Handle(startEndpoint, tb.start)
@@ -49,6 +52,10 @@ func (tb *TelegramBot) DefineHandlers() {
 
 	tb.bot.Handle(salchiFactEndpoint, tb.getSalchiFact)
 
+	tb.bot.Handle(getVetsEndpoint, tb.getVets)
+
+	tb.bot.Handle(setAlarmEndpoint, tb.setAlarm)
+
 	// Button handlers
 	tb.bot.Handle(&button.CreateAccount, tb.createAccount)
 
@@ -56,7 +63,7 @@ func (tb *TelegramBot) DefineHandlers() {
 
 	tb.bot.Handle(&button.PetInfo, tb.getPetInfo)
 
-	//tb.bot.Handle(&button.MedicalHistoryButton, tb.medicalHistory)
+	tb.bot.Handle(&button.MedicalHistoryButton, tb.medicalHistory)
 
 	tb.bot.Handle(&button.VaccinesButton, tb.showVaccines)
 

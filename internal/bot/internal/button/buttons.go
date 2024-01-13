@@ -10,21 +10,21 @@ const (
 	signInURLTemplate         = "https://web.telegram.org/a/#%d"
 	createAccountEndpoint     = "create-account"
 	dontCreateAccountEndpoint = "bye-dude-good-luck"
-	petInfo                   = "pet-info"
-	vaccines                  = "vaccines"
-	medicalHistory            = "medical-history"
+	petInfoEndpoint           = "pet-info"
+	vaccinesEndpoint          = "vaccines"
+	medicalHistoryEndpoint    = "medical-history"
+	setAlarmEndpoint          = "set-alarm"
 )
 
 var (
 	Menu              = &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
-	PetInfoMenu       = &tele.ReplyMarkup{}
 	CreateAccount     = Menu.Data("Yes", createAccountEndpoint)
 	DontCreateAccount = Menu.Data("No", dontCreateAccountEndpoint)
 
 	// PetInfo use to create different buttons for each pet of the user
-	PetInfo              = Menu.Data("", petInfo)
-	VaccinesButton       = Menu.Data(fmt.Sprintf("Vaccines %s", emoji.Syringe), vaccines)
-	MedicalHistoryButton = Menu.Data(fmt.Sprintf("Medical history %v", emoji.OrangeBook), medicalHistory)
+	PetInfo              = Menu.Data("", petInfoEndpoint)
+	VaccinesButton       = Menu.Data(fmt.Sprintf("Vaccines %s", emoji.Syringe), vaccinesEndpoint)
+	MedicalHistoryButton = Menu.Data(fmt.Sprintf("Medical history %v", emoji.OrangeBook), medicalHistoryEndpoint)
 )
 
 func SignUpButton(telegramID int64) *tele.ReplyMarkup {

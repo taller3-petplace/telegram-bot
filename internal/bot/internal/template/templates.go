@@ -15,6 +15,14 @@ func RegisterPet() string {
 	return form
 }
 
+// Alarm contains the data to set an alarm for a given period or even indeterminately
+func Alarm() string {
+	form := "Hour: hh:mm\n\n"
+	form += "End Date: yyyy/mm/dd or N/A"
+
+	return form
+}
+
 func WelcomeMessage(userName string) string {
 	message := fmt.Sprintf(
 		"Welcome to Pet Place, %s! I'm Ringot and I'll help you to perform different operations from Telegram %s. My features are:\n\n",
