@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  telegram:
+    container_name: telegram-bot
+    image: telegramer:latest
+    entrypoint: ./main
+    environment:
+      - LOG_LEVEL=INFO
+    networks:
+      - telegram-network
+
+
+networks:
+  telegram-network:
+    name: telegram-network
