@@ -8,13 +8,16 @@ import (
 	"net/http"
 )
 
-const nonErrorCodeLimit = 299
-
 // Services error responses definitions
 
 type petServiceErrorResponse struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
+}
+
+type treatmentServiceErrorResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }
 
 func (petError petServiceErrorResponse) GetMessage() string {
@@ -25,21 +28,32 @@ func (petError petServiceErrorResponse) GetStatus() int {
 	return petError.Status
 }
 
+func (treatmentError treatmentServiceErrorResponse) GetMessage() string {
+	return treatmentError.Msg
+}
+
+func (treatmentError treatmentServiceErrorResponse) GetStatus() int {
+	return treatmentError.Code
+}
+
 type serviceError interface {
 	GetMessage() string
 	GetStatus() int
 }
 
 var (
-	errEndpointDoesNotExist          = errors.New("error endpoint does not exist")
-	errPerformingRequest             = errors.New("error performing request")
-	errReadingResponseBody           = errors.New("error reading response body")
-	errUnmarshallingMultiplePetsData = errors.New("error unmarshalling multiple pets data")
-	errUnmarshallingPetData          = errors.New("error unmarshalling pet data")
-	errMarshallingPetRequest         = errors.New("error marshalling pet request")
-	errCreatingRequest               = errors.New("error creating request")
-	errNilResponse                   = errors.New("error nil response")
-	errUnmarshallingErrorResponse    = errors.New("error unmarshalling error response")
+	errEndpointDoesNotExist            = errors.New("error endpoint does not exist")
+	errPerformingRequest               = errors.New("error performing request")
+	errReadingResponseBody             = errors.New("error reading response body")
+	errUnmarshallingMultiplePetsData   = errors.New("error unmarshalling multiple pets data")
+	errUnmarshallingPetData            = errors.New("error unmarshalling pet data")
+	errUnmarshallingVaccinesData       = errors.New("error unmarshalling vaccines data")
+	errUnmarshallingTreatmentData      = errors.New("error unmarshalling treatment data")
+	errUnmarshallingMultipleTreatments = errors.New("error unmarshalling multiple treatments")
+	errMarshallingPetRequest           = errors.New("error marshalling pet request")
+	errCreatingRequest                 = errors.New("error creating request")
+	errNilResponse                     = errors.New("error nil response")
+	errUnmarshallingErrorResponse      = errors.New("error unmarshalling error response")
 )
 
 func ErrPolicyFunc[serviceErrorType serviceError](response *http.Response) error {
