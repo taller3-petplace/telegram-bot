@@ -163,6 +163,7 @@ func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 
 	if err != nil {
 		fmt.Printf("error fetching pet data: petID: %s - error: %v\n", petID, err)
+		return c.Send(template.TryAgainMessage())
 	}
 
 	message := fmt.Sprintf("%s \n\n", petData.Name)

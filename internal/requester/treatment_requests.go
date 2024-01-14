@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"telegram-bot/internal/domain"
+	"telegram-bot/internal/utils"
 	"telegram-bot/internal/utils/urlutils"
 )
 
@@ -227,6 +228,8 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 			"",
 		)
 	}
+
+	utils.SortElementsByDate(vaccines)
 
 	return vaccines, nil
 }

@@ -67,3 +67,9 @@ func TestSortElementsByDate(t *testing.T) {
 	SortElementsByDate(elementsToSort)
 	assert.Equal(t, expectedOrder, elementsToSort)
 }
+
+func TestDateToString(t *testing.T) {
+	date := time.Date(2001, 9, 11, 0, 0, 0, 0, time.UTC)
+	expectedString := "2001-09-11"
+	assert.Equal(t, expectedString, DateToString(date))
+}
