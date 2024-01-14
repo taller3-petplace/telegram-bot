@@ -183,14 +183,6 @@ func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 	return c.Send(message, petInfoMenu)
 }
 
-func (tb *TelegramBot) showVaccines(c tele.Context) error {
-	return c.Send("implement me")
-}
-
-func (tb *TelegramBot) medicalHistory(c tele.Context) error {
-	return c.Send("implement me")
-}
-
 // getSalchiFact returns a random fact about perros salchichas
 func (tb *TelegramBot) getSalchiFact(c tele.Context) error {
 	fact := salchifacts.GetFact()
