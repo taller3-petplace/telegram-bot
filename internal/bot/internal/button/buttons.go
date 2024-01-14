@@ -22,9 +22,9 @@ var (
 	DontCreateAccount = Menu.Data("No", dontCreateAccountEndpoint)
 
 	// PetInfo use to create different buttons for each pet of the user
-	PetInfo              = Menu.Data("", petInfoEndpoint)
-	VaccinesButton       = Menu.Data(fmt.Sprintf("Vaccines %s", emoji.Syringe), vaccinesEndpoint)
-	MedicalHistoryButton = Menu.Data(fmt.Sprintf("Medical history %v", emoji.OrangeBook), medicalHistoryEndpoint)
+	PetInfo        = Menu.Data("", petInfoEndpoint)
+	Vaccines       = Menu.Data(fmt.Sprintf("Vaccines %s", emoji.Syringe), vaccinesEndpoint)
+	MedicalHistory = Menu.Data(fmt.Sprintf("Medical history %v", emoji.OrangeBook), medicalHistoryEndpoint)
 )
 
 func SignUpButton(telegramID int64) *tele.ReplyMarkup {
@@ -38,4 +38,14 @@ func SignUpButton(telegramID int64) *tele.ReplyMarkup {
 	)
 
 	return signUpButton
+}
+
+func VaccinesButton(petID string) tele.Btn {
+	markup := &tele.ReplyMarkup{}
+	return markup.Data(Vaccines.Text, Vaccines.Unique, petID)
+}
+
+func MedicalHistoryButton(petID string) tele.Btn {
+	markup := &tele.ReplyMarkup{}
+	return markup.Data(MedicalHistory.Text, MedicalHistory.Unique, petID)
 }

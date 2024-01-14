@@ -63,9 +63,9 @@ func (tb *TelegramBot) DefineHandlers() {
 
 	tb.bot.Handle(&button.PetInfo, tb.getPetInfo)
 
-	tb.bot.Handle(&button.MedicalHistoryButton, tb.medicalHistory)
+	tb.bot.Handle(&button.MedicalHistory, tb.medicalHistory)
 
-	tb.bot.Handle(&button.VaccinesButton, tb.showVaccines)
+	tb.bot.Handle(&button.Vaccines, tb.showVaccines)
 
 	// Action handlers
 	tb.bot.Handle(tele.OnText, tb.textHandler)

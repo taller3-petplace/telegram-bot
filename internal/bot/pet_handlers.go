@@ -176,8 +176,8 @@ func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 	petInfoMenu := tb.bot.NewMarkup()
 
 	petInfoMenu.Inline(
-		petInfoMenu.Row(button.MedicalHistoryButton),
-		petInfoMenu.Row(button.VaccinesButton),
+		petInfoMenu.Row(button.MedicalHistoryButton(petID)),
+		petInfoMenu.Row(button.VaccinesButton(petID)),
 	)
 
 	return c.Send(message, petInfoMenu)
