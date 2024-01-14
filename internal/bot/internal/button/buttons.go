@@ -14,6 +14,7 @@ const (
 	vaccinesEndpoint          = "vaccines"
 	medicalHistoryEndpoint    = "medical-history"
 	setAlarmEndpoint          = "set-alarm"
+	treatmentInfoEndpoint     = "treatment-info"
 )
 
 var (
@@ -25,6 +26,7 @@ var (
 	PetInfo        = Menu.Data("", petInfoEndpoint)
 	Vaccines       = Menu.Data(fmt.Sprintf("Vaccines %s", emoji.Syringe), vaccinesEndpoint)
 	MedicalHistory = Menu.Data(fmt.Sprintf("Medical history %v", emoji.OrangeBook), medicalHistoryEndpoint)
+	Treatment      = Menu.Data("", treatmentInfoEndpoint)
 )
 
 func SignUpButton(telegramID int64) *tele.ReplyMarkup {
@@ -48,4 +50,9 @@ func VaccinesButton(petID string) tele.Btn {
 func MedicalHistoryButton(petID string) tele.Btn {
 	markup := &tele.ReplyMarkup{}
 	return markup.Data(MedicalHistory.Text, MedicalHistory.Unique, petID)
+}
+
+func TreatmentSummaryButton(treatmentSummary string, treatmentID string) tele.Btn {
+	markup := &tele.ReplyMarkup{}
+	return markup.Data(treatmentSummary, Treatment.Unique, treatmentID)
 }

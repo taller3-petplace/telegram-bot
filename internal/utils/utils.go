@@ -150,7 +150,7 @@ func SortElementsByDate[T sorter](elements []T) {
 	})
 }
 
-// DateToString transforms the input in a string with format dd/mm/yyyy
+// DateToString transforms the input in a string with format yyyy-mm-dd
 func DateToString(date time.Time) string {
 	return date.Format(time.DateOnly)
 }

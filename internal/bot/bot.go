@@ -67,12 +67,12 @@ func (tb *TelegramBot) DefineHandlers() {
 
 	tb.bot.Handle(&button.Vaccines, tb.showVaccines)
 
+	tb.bot.Handle(&button.Treatment, tb.getTreatment)
+
 	// Action handlers
 	tb.bot.Handle(tele.OnText, tb.textHandler)
 
 	tb.bot.Handle(tele.OnEdited, tb.editMessageHandler)
-
-	//tb.bot.Handle(tele.OnQuery, tb.medicalHistory)
 }
 
 func (tb *TelegramBot) StartBot() {
