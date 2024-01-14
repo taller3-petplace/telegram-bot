@@ -47,12 +47,12 @@ func (t *Treatment) UnmarshalJSON(rawData []byte) error {
 }
 
 // GetDate returns the date on which the treatment was modified by last time
-func (t *Treatment) GetDate() time.Time {
+func (t Treatment) GetDate() time.Time {
 	return t.LastModified
 }
 
 // GetName the name of a treatment consists in the Type field follow by the DateStart, eg: medical appointment:
-func (t *Treatment) GetName() string {
+func (t Treatment) GetName() string {
 	return fmt.Sprintf("%s: %s", t.Type, utils.DateToString(t.DateStart))
 }
 

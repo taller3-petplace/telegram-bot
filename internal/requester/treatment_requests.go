@@ -11,14 +11,13 @@ import (
 )
 
 const (
-	getPetTreatments      = "get_pet_treatments"
-	getTreatment          = "get_treatment"
-	getVaccines           = "get_vaccines"
-	maxAmountOfTreatments = 5
+	getPetTreatments = "get_pet_treatments"
+	getTreatment     = "get_treatment"
+	getVaccines      = "get_vaccines"
 )
 
-// GetTreatmentsByPetID fetches the last 5 treatments of the given pet.
-// The treatments go from new ones to old ones
+// GetTreatmentsByPetID fetches all treatments of the given pet.
+// The treatments are ordered from most recent to oldest
 func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) {
 	operation := "GetTreatmentsByPetID"
 	endpointData, err := r.TreatmentsService.GetEndpoint(getPetTreatments)
@@ -89,6 +88,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 		)
 	}
 
+	utils.SortElementsByDate(petTreatments)
 	return petTreatments, nil
 }
 

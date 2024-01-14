@@ -6,11 +6,14 @@ import (
 	tele "gopkg.in/telebot.v3"
 	"strconv"
 	"strings"
+	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/bot/internal/template"
 	"telegram-bot/internal/requester"
 	"telegram-bot/internal/utils"
 	"telegram-bot/internal/utils/formatter"
 )
+
+const treatmentsThreshold = 5
 
 // showVaccines shows all the vaccines that were applied to the pet. The vaccines are ordered from most recent to oldest
 func (tb *TelegramBot) showVaccines(c tele.Context) error {
@@ -63,7 +66,56 @@ func (tb *TelegramBot) showVaccines(c tele.Context) error {
 
 // medicalHistory list the last 5 treatments of the pet
 func (tb *TelegramBot) medicalHistory(c tele.Context) error {
-	return c.Send("implement me")
+	// Todo: add function to extract IDs from c.Data()
+	params := strings.Split(c.Data(), "|")
+
+	if len(params) != 1 {
+		return c.Send(template.TryAgainMessage())
+	}
+
+	petID := params[0]
+	petIDInt, err := strconv.Atoi(petID)
+	if err != nil {
+		fmt.Printf("invalid petID: %s\n", petID)
+		return c.Send(template.TryAgainMessage())
+	}
+
+	allPetTreatments, err := tb.requester.GetTreatmentsByPetID(petIDInt)
+
+	var requestError requester.RequestError
+	ok := errors.As(err, &requestError)
+	if ok && requestError.IsNotFound() || requestError.IsNoContent() {
+		return c.Send("Cannot find treatments for selected pet")
+	}
+
+	if err != nil {
+		fmt.Printf("error fetching treatments: petID: %s - error: %v\n", petID, err)
+		return c.Send(template.TryAgainMessage())
+	}
+
+	if len(allPetTreatments) > treatmentsThreshold {
+		allPetTreatments = allPetTreatments[:treatmentsThreshold]
+	}
+
+	treatmentsMenu := tb.bot.NewMarkup()
+	var treatmentRows []tele.Row
+	for _, treatmentData := range allPetTreatments {
+		infoCut := ""
+		if len(treatmentData.Comments) > 0 {
+			infoCut = formatter.EllipseText(treatmentData.Comments[0].Information, 15)
+		}
+
+		buttonText := fmt.Sprintf(
+			"%s \n%s", treatmentData.GetName(), infoCut)
+
+		treatmentButton := button.TreatmentSummaryButton(buttonText, treatmentData.ID)
+		treatmentRows = append(treatmentRows, treatmentsMenu.Row(treatmentButton))
+	}
+
+	treatmentsMenu.Inline(treatmentRows...)
+
+	return c.Send("Select a treatment", treatmentsMenu)
+
 }
 
 // getTreatment shows all the information related with a treatment. Eg of treatment message:
