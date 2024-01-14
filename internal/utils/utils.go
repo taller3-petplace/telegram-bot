@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 )
@@ -133,4 +134,18 @@ func CalculateYearsBetweenDates(date time.Time) int {
 
 	amountOfYears := diff.Hours() / hoursInAYear
 	return int(amountOfYears)
+}
+
+type sorter interface {
+	GetDate() time.Time
+}
+
+// SortElementsByDate sorts from newest dates to oldest ones
+func SortElementsByDate[T sorter](elements []T) {
+	sort.Slice(elements, func(i, j int) bool {
+		date1 := elements[i].GetDate()
+		date2 := elements[j].GetDate()
+
+		return date1.After(date2)
+	})
 }

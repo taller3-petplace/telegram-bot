@@ -32,3 +32,38 @@ func TestCalculateYearsBetweenDates(t *testing.T) {
 	assert.Equal(t, 3, CalculateYearsBetweenDates(pastTime))
 	assert.Equal(t, -69, CalculateYearsBetweenDates(futureTime))
 }
+
+type testElement struct {
+	date time.Time
+}
+
+func (te testElement) GetDate() time.Time {
+	return te.date
+}
+
+func TestSortElementsByDate(t *testing.T) {
+	// The following definitions are ordered from oldest to most recent
+	currentTime := time.Now()
+
+	elem1 := currentTime.AddDate(-69, 0, 0)
+	elem2 := currentTime.AddDate(-50, 0, 0)
+	elem3 := currentTime.AddDate(-28, 0, 0)
+	elem4 := currentTime
+
+	elementsToSort := []testElement{
+		{date: elem1},
+		{date: elem2},
+		{date: elem3},
+		{date: elem4},
+	}
+
+	expectedOrder := []testElement{
+		{date: elem4},
+		{date: elem3},
+		{date: elem2},
+		{date: elem1},
+	}
+
+	SortElementsByDate(elementsToSort)
+	assert.Equal(t, expectedOrder, elementsToSort)
+}

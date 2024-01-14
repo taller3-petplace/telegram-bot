@@ -78,3 +78,32 @@ func TestUnorderedList(t *testing.T) {
 		}
 	}
 }
+
+func TestEllipseText(t *testing.T) {
+	testCases := []struct {
+		Name                  string
+		Text                  string
+		MaxAmountOfCharacters int
+		ExpectedText          string
+	}{
+		{
+			Name:                  "Text with length less than max amount of characters",
+			Text:                  "hola",
+			MaxAmountOfCharacters: 20,
+			ExpectedText:          "hola",
+		},
+		{
+			Name:                  "Ellipse text correctly",
+			Text:                  "hola que tal tu como estas? dime si eres feliz",
+			MaxAmountOfCharacters: 31,
+			ExpectedText:          "hola que tal tu como estas? dim...",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			ellipsis := EllipseText(testCase.Text, testCase.MaxAmountOfCharacters)
+			assert.Equal(t, testCase.ExpectedText, ellipsis)
+		})
+	}
+}

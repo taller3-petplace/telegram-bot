@@ -39,3 +39,12 @@ func UnorderedList(items []string) string {
 
 	return output
 }
+
+func EllipseText(text string, maxAmountOfCharacters int) string {
+	if len(text) < maxAmountOfCharacters {
+		return text
+	}
+
+	text = text[:maxAmountOfCharacters]
+	return text + "..."
+}
