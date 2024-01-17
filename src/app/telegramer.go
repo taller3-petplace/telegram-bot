@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	env "github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v3"
 	"net/http"
 	"os"
@@ -12,7 +11,7 @@ import (
 )
 
 const (
-	token = "TELEGRAM_BOT_TOKEN"
+	tokenKey = "TELEGRAM_BOT_TOKEN"
 )
 
 type Telegramer struct {
@@ -20,13 +19,7 @@ type Telegramer struct {
 }
 
 func NewTelegramer() (*Telegramer, error) {
-	err := env.Load()
-	if err != nil {
-		fmt.Println("error loading environment variables")
-		return nil, err
-	}
-
-	botToken := os.Getenv(token)
+	botToken := os.Getenv(tokenKey)
 	if botToken == "" {
 		return nil, fmt.Errorf("bot token is missing")
 	}

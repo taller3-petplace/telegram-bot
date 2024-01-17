@@ -3,7 +3,6 @@ FROM golang:latest
 WORKDIR /app
 COPY ./go.mod .
 COPY ./go.sum .
-COPY .env .
 COPY ./internal/ ./internal
 COPY ./src/ ./src
 
