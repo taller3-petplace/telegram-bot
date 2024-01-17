@@ -346,48 +346,45 @@ func TestRequesterGetTreatment(t *testing.T) {
 }
 
 func TestRequesterGetVaccines(t *testing.T) {
-	// ToDo: implement me. Licha
-	petsServiceEndpoints := getExpectedPetsServiceEndpoints()
-	registerPetEndpoint := petsServiceEndpoints[registerPet]
+	treatmentsServiceEndpoints := getExpectedTreatmentsServiceEndpoints()
+	registerPetEndpoint := treatmentsServiceEndpoints[getVaccines]
 	registerPetEndpoint.SetBaseURL(testBaseURL)
 
-	invalidEndpoint := petsServiceEndpoints[registerPet]
-	invalidEndpoint.Method = "hola que tal tu como estas? dime si eres feliz"
+	invalidEndpoint := treatmentsServiceEndpoints[getVaccines]
+	invalidEndpoint.Method = "Cómo hago compañero pa' decirle que no he podido olvidarla"
 
 	requester := Requester{
-		PetsService: config.ServiceEndpoints{
-			Endpoints: petsServiceEndpoints,
+		TreatmentsService: config.ServiceEndpoints{
+			Endpoints: treatmentsServiceEndpoints,
 		},
 	}
 
-	petsServiceError := petServiceErrorResponse{
-		Status:  http.StatusBadRequest,
-		Message: "error alla le estan registrando una mascota",
+	treatmentsServiceError := petServiceErrorResponse{
+		Status: http.StatusBadRequest,
+		Message: "error Olvídala no es fácil para mi por " +
+			"eso quiero hablarle si es preciso, rogarle que regrese a mi vida",
 	}
-	serviceErrorRaw, err := json.Marshal(petsServiceError)
+	serviceErrorRaw, err := json.Marshal(treatmentsServiceError)
 	require.NoError(t, err)
 
-	petRequest := domain.PetRequest{
-		Name:         "Turron",
-		Type:         "DOG",
-		RegisterDate: time.Now(),
-		BirthDate:    "2013/05/15",
-		OwnerID:      ownerID,
+	vaccines := []domain.Vaccine{
+		{},
 	}
-	rawPetRequest, err := json.Marshal(petRequest)
+	rawVaccines, err := json.Marshal(vaccines)
 	require.NoError(t, err)
 
 	testCases := []struct {
-		Name             string
-		Requester        Requester
-		ClientMockConfig *clientMockConfig
-		ExpectsError     bool
-		ExpectedError    error
+		Name                 string
+		Requester            Requester
+		ClientMockConfig     *clientMockConfig
+		ExpectsError         bool
+		ExpectedError        error
+		ExpectedVaccinesData []domain.Vaccine
 	}{
 		{
 			Name: "Endpoint does not exist",
 			Requester: Requester{
-				PetsService: config.ServiceEndpoints{Endpoints: map[string]config.Endpoint{}},
+				TreatmentsService: config.ServiceEndpoints{Endpoints: map[string]config.Endpoint{}},
 			},
 			ExpectsError:  true,
 			ExpectedError: errEndpointDoesNotExist,
@@ -395,8 +392,8 @@ func TestRequesterGetVaccines(t *testing.T) {
 		{
 			Name: "Error creating request",
 			Requester: Requester{
-				PetsService: config.ServiceEndpoints{Endpoints: map[string]config.Endpoint{
-					registerPet: invalidEndpoint,
+				TreatmentsService: config.ServiceEndpoints{Endpoints: map[string]config.Endpoint{
+					getVaccines: invalidEndpoint,
 				}},
 			},
 			ExpectsError:  true,
@@ -423,7 +420,7 @@ func TestRequesterGetVaccines(t *testing.T) {
 			ExpectedError: errNilResponse,
 		},
 		{
-			Name:      "Error from pets service",
+			Name:      "Error from treatments service",
 			Requester: requester,
 			ClientMockConfig: &clientMockConfig{
 				ResponseBody: &http.Response{
@@ -433,20 +430,34 @@ func TestRequesterGetVaccines(t *testing.T) {
 				Err: nil,
 			},
 			ExpectsError:  true,
-			ExpectedError: fmt.Errorf(petsServiceError.GetMessage()),
+			ExpectedError: fmt.Errorf(treatmentsServiceError.GetMessage()),
 		},
 		{
-			Name:      "Register pet correctly",
+			Name:      "Error unmarshalling vaccines data",
 			Requester: requester,
 			ClientMockConfig: &clientMockConfig{
-				RequestBody: bytes.NewReader(rawPetRequest),
 				ResponseBody: &http.Response{
-					StatusCode: http.StatusCreated,
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBufferString(`{"id": 69}`)),
+				},
+				Err: nil,
+			},
+			ExpectsError:  true,
+			ExpectedError: errUnmarshallingTreatmentData,
+		},
+		{
+			Name:      "Get vaccines correctly",
+			Requester: requester,
+			ClientMockConfig: &clientMockConfig{
+				RequestBody: bytes.NewReader(rawVaccines),
+				ResponseBody: &http.Response{
+					StatusCode: http.StatusOK,
 					Body:       nil,
 				},
 				Err: nil,
 			},
-			ExpectsError: false,
+			ExpectsError:         false,
+			ExpectedVaccinesData: []domain.Vaccine{},
 		},
 	}
 
@@ -461,13 +472,14 @@ func TestRequesterGetVaccines(t *testing.T) {
 
 			testCase.Requester.clientHTTP = clientMock
 
-			err := testCase.Requester.RegisterPet(petRequest)
+			vaccinesResponse, err := testCase.Requester.GetVaccines(petID)
 			if testCase.ExpectsError {
 				assert.ErrorContains(t, err, testCase.ExpectedError.Error())
 				return
 			}
 
 			assert.NoError(t, err)
+			assert.Equal(t, testCase.ExpectedVaccinesData, vaccinesResponse)
 		})
 	}
 }

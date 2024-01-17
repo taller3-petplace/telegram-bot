@@ -28,7 +28,7 @@
   },
   "treatments_service":
   {
-    "base": "http://localhost:8712/treatments",
+    "base": "https://api.lnt.digital/treatments",
     "endpoints": {
       "get_pet_treatments": {
         "path": "/treatment/pet/{petID}",

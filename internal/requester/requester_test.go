@@ -24,7 +24,7 @@ func TestNewRequester(t *testing.T) {
 	assertServiceConfig(t, requester.PetsService, expectedPetsServiceConfig)
 
 	expectedTreatmentsServiceConfig := expectedServiceConfig{
-		BaseURL:           "http://localhost:8712/treatments",
+		BaseURL:           "https://api.lnt.digital/treatments",
 		ExpectedEndpoints: getExpectedTreatmentsServiceEndpoints(),
 	}
 	assertServiceConfig(t, requester.TreatmentsService, expectedTreatmentsServiceConfig)
