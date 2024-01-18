@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 )
 
 const defaultLimit = 10
@@ -14,6 +15,7 @@ type ServiceEndpoints struct {
 
 func (se *ServiceEndpoints) UnmarshalJSON(rawServiceData []byte) error {
 	if len(rawServiceData) == 0 {
+		logrus.Error("error service endpoints data is missing")
 		return errServiceEndpointDataMissing
 	}
 
@@ -24,6 +26,7 @@ func (se *ServiceEndpoints) UnmarshalJSON(rawServiceData []byte) error {
 
 	err := json.Unmarshal(rawServiceData, &serviceEndpoints)
 	if err != nil {
+		logrus.Errorf("error unmarshaling service endpoints data: %v", err)
 		return errUnmarshallingServiceData
 	}
 

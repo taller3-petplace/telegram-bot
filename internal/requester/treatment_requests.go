@@ -3,6 +3,7 @@ package requester
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"telegram-bot/internal/domain"
@@ -22,6 +23,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 	operation := "GetTreatmentsByPetID"
 	endpointData, err := r.TreatmentsService.GetEndpoint(getPetTreatments)
 	if err != nil {
+		logrus.Errorf("%v", err)
 		return nil, err
 	}
 
@@ -29,6 +31,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 	url = urlutils.FormatURL(url, map[string]string{"petID": fmt.Sprintf("%v", petID)})
 	request, err := http.NewRequest(endpointData.Method, url, nil)
 	if err != nil {
+		logrus.Errorf("error creating getTreatmentsByPetID request: %v", err)
 		return nil, fmt.Errorf("%w: %v. Operation: %s", errCreatingRequest, err, operation)
 	}
 
@@ -38,6 +41,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
+		logrus.Errorf("error performing getTreatmentsByPetID: %v", err)
 		return nil, NewRequestError(
 			fmt.Errorf("%w %s", errPerformingRequest, operation),
 			http.StatusInternalServerError,
@@ -52,6 +56,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 	}()
 
 	if response == nil {
+		logrus.Errorf("%v", errNilResponse)
 		errorResponse := NewRequestError(
 			errNilResponse,
 			http.StatusInternalServerError,
@@ -62,6 +67,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 
 	err = ErrPolicyFunc[treatmentServiceErrorResponse](response)
 	if err != nil {
+		logrus.Errorf("%v", err)
 		return nil, NewRequestError(
 			err,
 			response.StatusCode,
@@ -71,6 +77,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
+		logrus.Errorf("error reading treatments body: %v", err)
 		return nil, NewRequestError(
 			errReadingResponseBody,
 			http.StatusInternalServerError,
@@ -81,6 +88,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 	var petTreatments []domain.Treatment
 	err = json.Unmarshal(responseBody, &petTreatments)
 	if err != nil {
+		logrus.Errorf("error unmarshallin pet treatments: %v", err)
 		return nil, NewRequestError(
 			fmt.Errorf("%w: %v", errUnmarshallingMultipleTreatments, err),
 			http.StatusInternalServerError,
@@ -97,6 +105,7 @@ func (r *Requester) GetTreatment(treatmentID int) (domain.Treatment, error) {
 	operation := "GetTreatment"
 	endpointData, err := r.TreatmentsService.GetEndpoint(getTreatment)
 	if err != nil {
+		logrus.Errorf("%v", err)
 		return domain.Treatment{}, err
 	}
 
@@ -104,11 +113,13 @@ func (r *Requester) GetTreatment(treatmentID int) (domain.Treatment, error) {
 	url = urlutils.FormatURL(url, map[string]string{"treatmentID": fmt.Sprintf("%v", treatmentID)})
 	request, err := http.NewRequest(endpointData.Method, url, nil)
 	if err != nil {
+		logrus.Errorf("error creting getTreatment request: %v", err)
 		return domain.Treatment{}, fmt.Errorf("%w: %v. Operation: %s", errCreatingRequest, err, operation)
 	}
 
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
+		logrus.Errorf("error performing getTreatment request: %v", err)
 		return domain.Treatment{}, NewRequestError(
 			fmt.Errorf("%w %s", errPerformingRequest, operation),
 			http.StatusInternalServerError,
@@ -123,6 +134,7 @@ func (r *Requester) GetTreatment(treatmentID int) (domain.Treatment, error) {
 	}()
 
 	if response == nil {
+		logrus.Errorf("%v", errNilResponse)
 		errorResponse := NewRequestError(
 			errNilResponse,
 			http.StatusInternalServerError,
@@ -133,6 +145,7 @@ func (r *Requester) GetTreatment(treatmentID int) (domain.Treatment, error) {
 
 	err = ErrPolicyFunc[treatmentServiceErrorResponse](response)
 	if err != nil {
+		logrus.Errorf("error from treatments service: %v", err)
 		return domain.Treatment{}, NewRequestError(
 			err,
 			response.StatusCode,
@@ -142,6 +155,7 @@ func (r *Requester) GetTreatment(treatmentID int) (domain.Treatment, error) {
 
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
+		logrus.Errorf("error reading treatment body: %v", err)
 		return domain.Treatment{}, NewRequestError(
 			errReadingResponseBody,
 			http.StatusInternalServerError,
@@ -152,6 +166,7 @@ func (r *Requester) GetTreatment(treatmentID int) (domain.Treatment, error) {
 	var treatmentData domain.Treatment
 	err = json.Unmarshal(responseBody, &treatmentData)
 	if err != nil {
+		logrus.Errorf("error unmarshalling treatment data: %v", err)
 		return domain.Treatment{}, NewRequestError(
 			fmt.Errorf("%w: %v", errUnmarshallingTreatmentData, err),
 			http.StatusInternalServerError,
@@ -167,6 +182,7 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 	operation := "GetVaccines"
 	endpointData, err := r.TreatmentsService.GetEndpoint(getVaccines)
 	if err != nil {
+		logrus.Errorf("%v", err)
 		return nil, err
 	}
 
@@ -174,11 +190,13 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 	url = urlutils.FormatURL(url, map[string]string{"petID": fmt.Sprintf("%v", petID)})
 	request, err := http.NewRequest(endpointData.Method, url, nil)
 	if err != nil {
+		logrus.Errorf("error creating getVaccines request: %v", err)
 		return nil, fmt.Errorf("%w: %v. Operation: %s", errCreatingRequest, err, operation)
 	}
 
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
+		logrus.Errorf("error performing getVaccines request: %v", err)
 		return nil, NewRequestError(
 			fmt.Errorf("%w %s", errPerformingRequest, operation),
 			http.StatusInternalServerError,
@@ -193,6 +211,7 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 	}()
 
 	if response == nil {
+		logrus.Errorf("%v in getVaccines", errNilResponse)
 		errorResponse := NewRequestError(
 			errNilResponse,
 			http.StatusInternalServerError,
@@ -203,6 +222,7 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 
 	err = ErrPolicyFunc[treatmentServiceErrorResponse](response)
 	if err != nil {
+		logrus.Errorf("error from treatments service %v", err)
 		return nil, NewRequestError(
 			err,
 			response.StatusCode,
@@ -212,6 +232,7 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
+		logrus.Errorf("error reading vaccines body: %v", err)
 		return nil, NewRequestError(
 			errReadingResponseBody,
 			http.StatusInternalServerError,
@@ -222,6 +243,7 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 	var vaccines []domain.Vaccine
 	err = json.Unmarshal(responseBody, &vaccines)
 	if err != nil {
+		logrus.Errorf("error unmarshalling vaccines response: %v", err)
 		return nil, NewRequestError(
 			fmt.Errorf("%w: %v", errUnmarshallingVaccinesData, err),
 			http.StatusInternalServerError,

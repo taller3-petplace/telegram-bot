@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/enescakir/emoji"
+	"github.com/sirupsen/logrus"
 	tele "gopkg.in/telebot.v3"
 	"regexp"
 	"strconv"
@@ -24,7 +25,6 @@ const (
 	nameTag      = "Name"
 	birthDateTag = "BirthDate"
 	typeTag      = "Type"
-	hoursInAYear = 365 * 24
 )
 
 func NewPetRequest(petData map[string]string, userID int64) domain.PetRequest {
@@ -94,8 +94,8 @@ func (tb *TelegramBot) createPetRecord(c tele.Context) error {
 
 	err = tb.requester.RegisterPet(petRequest)
 	if err != nil {
-		fmt.Printf("hubo un error creando la mascota: %v", err)
-		return c.Send("error creando la mascota al hacer la request")
+		logrus.Errorf("error creating pet: %v", err)
+		return c.Send("Oops, something went wrong creating a record for your pet. Please, try again")
 	}
 
 	return c.Send("Pet record created correctly")
@@ -118,8 +118,8 @@ func (tb *TelegramBot) getPets(c tele.Context) error {
 	}
 
 	if err != nil {
-		fmt.Printf("\n el error: %v", err)
-		return c.Send("error searching your pets")
+		logrus.Errorf("error gettins pets: %v", err)
+		return c.Send("error searching your pets. Please, try again")
 	}
 
 	petsMenu := tb.bot.NewMarkup()
@@ -149,7 +149,7 @@ func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 	petID := params[0]
 	petIDInt, err := strconv.Atoi(petID)
 	if err != nil {
-		fmt.Printf("invalid petID: %s\n", petID)
+		logrus.Errorf("invalid petID: %s", petID)
 		return c.Send(template.TryAgainMessage())
 	}
 
@@ -162,7 +162,7 @@ func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 	}
 
 	if err != nil {
-		fmt.Printf("error fetching pet data: petID: %s - error: %v\n", petID, err)
+		logrus.Errorf("error fetching pet data: petID: %s - error: %v", petID, err)
 		return c.Send(template.TryAgainMessage())
 	}
 

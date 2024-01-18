@@ -3,6 +3,7 @@ package bot
 import (
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	tele "gopkg.in/telebot.v3"
 	"strconv"
 	"strings"
@@ -39,7 +40,7 @@ func (tb *TelegramBot) showVaccines(c tele.Context) error {
 	}
 
 	if err != nil {
-		fmt.Printf("error fetching vaccines: petID: %s - error: %v\n", petID, err)
+		logrus.Errorf("error fetching vaccines: petID: %s - error: %v", petID, err)
 		return c.Send(template.TryAgainMessage())
 	}
 
@@ -70,13 +71,14 @@ func (tb *TelegramBot) medicalHistory(c tele.Context) error {
 	params := strings.Split(c.Data(), "|")
 
 	if len(params) != 1 {
+		logrus.Errorf("invalid amount of params in medicalHistory: %s", params)
 		return c.Send(template.TryAgainMessage())
 	}
 
 	petID := params[0]
 	petIDInt, err := strconv.Atoi(petID)
 	if err != nil {
-		fmt.Printf("invalid petID: %s\n", petID)
+		logrus.Errorf("invalid petID: %s", petID)
 		return c.Send(template.TryAgainMessage())
 	}
 
@@ -89,7 +91,7 @@ func (tb *TelegramBot) medicalHistory(c tele.Context) error {
 	}
 
 	if err != nil {
-		fmt.Printf("error fetching treatments: petID: %s - error: %v\n", petID, err)
+		logrus.Errorf("error fetching treatments: petID: %s - error: %v", petID, err)
 		return c.Send(template.TryAgainMessage())
 	}
 
@@ -129,13 +131,14 @@ func (tb *TelegramBot) getTreatment(c tele.Context) error {
 	params := strings.Split(c.Data(), "|")
 
 	if len(params) != 1 {
+		logrus.Errorf("receive invalid amount of data in getTreatment: %v", params)
 		return c.Send(template.TryAgainMessage())
 	}
 
 	treatmentID := params[0]
 	treatmentIDInt, err := strconv.Atoi(treatmentID)
 	if err != nil {
-		fmt.Printf("invalid petID: %s\n", treatmentID)
+		logrus.Errorf("invalid petID: %s", treatmentID)
 		return c.Send(template.TryAgainMessage())
 	}
 
@@ -148,7 +151,7 @@ func (tb *TelegramBot) getTreatment(c tele.Context) error {
 	}
 
 	if err != nil {
-		fmt.Printf("error fetching treatment: treatmentID: %s - error: %v\n", treatmentID, err)
+		logrus.Errorf("error fetching treatment: treatmentID: %s - error: %v\n", treatmentID, err)
 		return c.Send(template.TryAgainMessage())
 	}
 
