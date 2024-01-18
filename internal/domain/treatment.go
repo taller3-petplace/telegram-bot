@@ -17,8 +17,6 @@ type Treatment struct {
 	NextTurn     *time.Time `json:"next_dose"`
 }
 
-// ToDo: add tests. Licha
-
 func (t *Treatment) UnmarshalJSON(rawData []byte) error {
 	var treatment struct {
 		ID           string     `json:"id"`
