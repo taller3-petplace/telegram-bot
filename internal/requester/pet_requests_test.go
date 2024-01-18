@@ -334,7 +334,7 @@ func TestRequesterGetPetDataByID(t *testing.T) {
 			Type: "DOG",
 		},
 		Race:      "Perro salchicha",
-		BirthDate: time.Now(),
+		BirthDate: time.Now().Truncate(0),
 	}
 
 	rawPetData, err := json.Marshal(petData)
@@ -445,15 +445,6 @@ func TestRequesterGetPetDataByID(t *testing.T) {
 			}
 
 			assert.NoError(t, err)
-			// We need to check one by one, otherwise we get an error
-			assert.Equal(t, testCase.ExpectedPetData.BirthDate.Year(), petDataResponse.BirthDate.Year())
-			assert.Equal(t, testCase.ExpectedPetData.BirthDate.Month(), petDataResponse.BirthDate.Month())
-			assert.Equal(t, testCase.ExpectedPetData.BirthDate.Day(), petDataResponse.BirthDate.Day())
-
-			timeAux := time.Now()
-			testCase.ExpectedPetData.BirthDate = timeAux
-			petDataResponse.BirthDate = timeAux
-
 			assert.Equal(t, testCase.ExpectedPetData, petDataResponse, "pet data do not match")
 		})
 	}

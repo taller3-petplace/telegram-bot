@@ -179,7 +179,7 @@ func TestRequesterGetTreatmentsByPetID(t *testing.T) {
 }
 
 func TestRequesterGetTreatment(t *testing.T) {
-	currentTime := time.Now()
+	currentTime := time.Now().Truncate(0)
 	treatmentsServiceEndpoints := getExpectedTreatmentsServiceEndpoints()
 	getTreatmentEndpoint := treatmentsServiceEndpoints[getTreatment]
 	getTreatmentEndpoint.SetBaseURL(testBaseURL)
@@ -346,6 +346,7 @@ func TestRequesterGetTreatment(t *testing.T) {
 }
 
 func TestRequesterGetVaccines(t *testing.T) {
+	currentTime := time.Now().Truncate(0)
 	treatmentsServiceEndpoints := getExpectedTreatmentsServiceEndpoints()
 	registerPetEndpoint := treatmentsServiceEndpoints[getVaccines]
 	registerPetEndpoint.SetBaseURL(testBaseURL)
@@ -359,19 +360,47 @@ func TestRequesterGetVaccines(t *testing.T) {
 		},
 	}
 
-	treatmentsServiceError := petServiceErrorResponse{
-		Status: http.StatusBadRequest,
-		Message: "error Olvídala no es fácil para mi por " +
+	treatmentsServiceError := treatmentServiceErrorResponse{
+		Code: http.StatusBadRequest,
+		Msg: "error Olvídala no es fácil para mi por " +
 			"eso quiero hablarle si es preciso, rogarle que regrese a mi vida",
 	}
 	serviceErrorRaw, err := json.Marshal(treatmentsServiceError)
 	require.NoError(t, err)
 
+	nextDose := currentTime.AddDate(0, 0, 7).Truncate(0)
 	vaccines := []domain.Vaccine{
-		{},
+		{
+			Name:      "Olvidala",
+			FirstDose: currentTime,
+			LastDose:  currentTime,
+			NextDose:  &nextDose,
+		},
+		{
+			Name:      "LosPalmeras",
+			FirstDose: currentTime,
+			LastDose:  currentTime.Add(2 * time.Hour),
+			NextDose:  nil,
+		},
 	}
 	rawVaccines, err := json.Marshal(vaccines)
 	require.NoError(t, err)
+
+	// vaccines are sorted based on the LastDose
+	expectedVaccines := []domain.Vaccine{
+		{
+			Name:      "LosPalmeras",
+			FirstDose: currentTime,
+			LastDose:  currentTime.Add(2 * time.Hour),
+			NextDose:  nil,
+		},
+		{
+			Name:      "Olvidala",
+			FirstDose: currentTime,
+			LastDose:  currentTime,
+			NextDose:  &nextDose,
+		},
+	}
 
 	testCases := []struct {
 		Name                 string
@@ -443,7 +472,7 @@ func TestRequesterGetVaccines(t *testing.T) {
 				Err: nil,
 			},
 			ExpectsError:  true,
-			ExpectedError: errUnmarshallingTreatmentData,
+			ExpectedError: errUnmarshallingVaccinesData,
 		},
 		{
 			Name:      "Get vaccines correctly",
@@ -452,12 +481,12 @@ func TestRequesterGetVaccines(t *testing.T) {
 				RequestBody: bytes.NewReader(rawVaccines),
 				ResponseBody: &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       nil,
+					Body:       io.NopCloser(bytes.NewBuffer(rawVaccines)),
 				},
 				Err: nil,
 			},
 			ExpectsError:         false,
-			ExpectedVaccinesData: []domain.Vaccine{},
+			ExpectedVaccinesData: expectedVaccines,
 		},
 	}
 
