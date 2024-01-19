@@ -1,7 +1,7 @@
 {
   "pets_service":
   {
-    "base": "http://localhost:8712/pets",
+    "base": "https://api.lnt.digital/pets",
     "endpoints":
     {
       "register_pet":
