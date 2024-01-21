@@ -157,7 +157,7 @@ func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 
 	var requestError requester.RequestError
 	ok := errors.As(err, &requestError)
-	if ok && requestError.IsNotFound() || requestError.IsNoContent() {
+	if ok && (requestError.IsNotFound() || requestError.IsNoContent()) {
 		return c.Send("Cannot find information about the selected pet")
 	}
 

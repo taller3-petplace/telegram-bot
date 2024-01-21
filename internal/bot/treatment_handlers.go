@@ -35,7 +35,7 @@ func (tb *TelegramBot) showVaccines(c tele.Context) error {
 
 	var requestError requester.RequestError
 	ok := errors.As(err, &requestError)
-	if ok && requestError.IsNotFound() || requestError.IsNoContent() {
+	if ok && (requestError.IsNotFound() || requestError.IsNoContent()) {
 		return c.Send("Cannot find vaccines for selected pet")
 	}
 
@@ -86,7 +86,7 @@ func (tb *TelegramBot) medicalHistory(c tele.Context) error {
 
 	var requestError requester.RequestError
 	ok := errors.As(err, &requestError)
-	if ok && requestError.IsNotFound() || requestError.IsNoContent() {
+	if ok && (requestError.IsNotFound() || requestError.IsNoContent()) {
 		return c.Send("Cannot find treatments for selected pet")
 	}
 
@@ -146,7 +146,7 @@ func (tb *TelegramBot) getTreatment(c tele.Context) error {
 
 	var requestError requester.RequestError
 	ok := errors.As(err, &requestError)
-	if ok && requestError.IsNotFound() || requestError.IsNoContent() {
+	if ok && (requestError.IsNotFound() || requestError.IsNoContent()) {
 		return c.Send("Cannot find info about selected treatment")
 	}
 
