@@ -136,13 +136,7 @@ func (tb *TelegramBot) getTreatment(c tele.Context) error {
 	}
 
 	treatmentID := params[0]
-	treatmentIDInt, err := strconv.Atoi(treatmentID)
-	if err != nil {
-		logrus.Errorf("invalid petID: %s", treatmentID)
-		return c.Send(template.TryAgainMessage())
-	}
-
-	treatment, err := tb.requester.GetTreatment(treatmentIDInt)
+	treatment, err := tb.requester.GetTreatment(treatmentID)
 
 	var requestError requester.RequestError
 	ok := errors.As(err, &requestError)

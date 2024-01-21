@@ -101,7 +101,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 }
 
 // GetTreatment fetches all the information about the given treatment
-func (r *Requester) GetTreatment(treatmentID int) (domain.Treatment, error) {
+func (r *Requester) GetTreatment(treatmentID string) (domain.Treatment, error) {
 	operation := "GetTreatment"
 	endpointData, err := r.TreatmentsService.GetEndpoint(getTreatment)
 	if err != nil {
