@@ -51,9 +51,9 @@ func (t Treatment) GetDate() time.Time {
 	return t.LastModified
 }
 
-// GetName the name of a treatment consists in the Type field follow by the DateStart, eg: medical appointment:
+// GetName the name of a treatment consists in the Type field follow by the DateStart, eg: medical appointment (2024-01-21)
 func (t Treatment) GetName() string {
-	return fmt.Sprintf("%s: %s", t.Type, utils.DateToString(t.DateStart))
+	return fmt.Sprintf("%s (%s)", t.Type, utils.DateToString(t.DateStart))
 }
 
 type Comment struct {
@@ -74,13 +74,25 @@ func (c Comment) GetDate() time.Time {
 }
 
 type Vaccine struct {
-	Name      string     `json:"name"`
-	FirstDose time.Time  `json:"first_dose"`
-	LastDose  time.Time  `json:"last_dose"`
-	NextDose  *time.Time `json:"next_dose"`
+	Name          string
+	AmountOfDoses int
+	FirstDose     time.Time
+	LastDose      time.Time
 }
 
 // GetDate returns the date on which the last dose was applied
 func (v Vaccine) GetDate() time.Time {
 	return v.LastDose
+}
+
+// VaccineResponse response from Treatments service
+type VaccineResponse struct {
+	ID   string    `json:"id"`
+	Name string    `json:"name"`
+	Date time.Time `json:"date"`
+}
+
+// GetDate returns the date on which the vaccine was applied
+func (v VaccineResponse) GetDate() time.Time {
+	return v.Date
 }

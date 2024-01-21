@@ -19,7 +19,7 @@ func TestTreatmentGetters(t *testing.T) {
 		LastModified: lastModified,
 	}
 
-	expectedTreatmentName := fmt.Sprintf("Medical Appointment: 2024-01-17")
+	expectedTreatmentName := fmt.Sprintf("Medical Appointment (2024-01-17)")
 	assert.Equal(t, expectedTreatmentName, treatment.GetName())
 	assert.Equal(t, lastModified, treatment.GetDate())
 }

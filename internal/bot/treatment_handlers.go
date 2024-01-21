@@ -48,15 +48,13 @@ func (tb *TelegramBot) showVaccines(c tele.Context) error {
 	for _, vaccine := range vaccines {
 		message += fmt.Sprintf("%s\n", formatter.Bold(vaccine.Name))
 
-		nextDose := "-"
-		if vaccine.NextDose != nil {
-			nextDose = utils.DateToString(*vaccine.NextDose)
-		}
+		// ToDo: sacarla y hacer logica join
+		// Hacer algo para que no le pegue a los servicios si no tiene data
 
 		doseDates := []string{
 			utils.DateToString(vaccine.FirstDose),
 			utils.DateToString(vaccine.LastDose),
-			nextDose,
+			formatter.SpoilerText("chupala N4ch0"),
 		}
 
 		message += formatter.UnorderedList(doseDates)
@@ -95,6 +93,10 @@ func (tb *TelegramBot) medicalHistory(c tele.Context) error {
 		return c.Send(template.TryAgainMessage())
 	}
 
+	if len(allPetTreatments) == 0 {
+		return c.Send("Your pet does not have any treatment yet")
+	}
+
 	if len(allPetTreatments) > treatmentsThreshold {
 		allPetTreatments = allPetTreatments[:treatmentsThreshold]
 	}
@@ -108,7 +110,7 @@ func (tb *TelegramBot) medicalHistory(c tele.Context) error {
 		}
 
 		buttonText := fmt.Sprintf(
-			"%s \n%s", treatmentData.GetName(), infoCut)
+			"%s: %s", treatmentData.GetName(), infoCut)
 
 		treatmentButton := button.TreatmentSummaryButton(buttonText, treatmentData.ID)
 		treatmentRows = append(treatmentRows, treatmentsMenu.Row(treatmentButton))
@@ -116,8 +118,7 @@ func (tb *TelegramBot) medicalHistory(c tele.Context) error {
 
 	treatmentsMenu.Inline(treatmentRows...)
 
-	return c.Send("Select a treatment", treatmentsMenu)
-
+	return c.Send("Select a treatment:", treatmentsMenu)
 }
 
 // getTreatment shows all the information related with a treatment. Eg of treatment message:
@@ -160,8 +161,8 @@ func (tb *TelegramBot) getTreatment(c tele.Context) error {
 	}
 
 	message := fmt.Sprintf(
-		"%s\nNext Turn: %s \nDate End: %s \nComments:",
-		treatment.GetName(),
+		"%s\n\nNext Turn: %s \nDate End: %s \nComments:\n",
+		formatter.Bold(treatment.GetName()),
 		nextTurn,
 		dateEnd,
 	)

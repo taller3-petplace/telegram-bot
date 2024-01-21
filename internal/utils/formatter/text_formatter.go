@@ -48,3 +48,11 @@ func EllipseText(text string, maxAmountOfCharacters int) string {
 	text = text[:maxAmountOfCharacters]
 	return text + "..."
 }
+
+func UnderlineText(text string) string {
+	return fmt.Sprintf("__%s__", text)
+}
+
+func SpoilerText(text string) string {
+	return fmt.Sprintf("||%s||", text)
+}
