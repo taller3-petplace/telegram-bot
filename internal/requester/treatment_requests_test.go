@@ -201,7 +201,7 @@ func TestRequesterGetTreatment(t *testing.T) {
 	serviceErrorRaw, err := json.Marshal(treatmentsServiceError)
 	require.NoError(t, err)
 
-	treatmentID := 1
+	treatmentID := "123abc"
 	// to check that comments are sorted
 	oldestComment := domain.Comment{
 		DateAdded:   currentTime.AddDate(0, -1, 0),
