@@ -368,37 +368,40 @@ func TestRequesterGetVaccines(t *testing.T) {
 	serviceErrorRaw, err := json.Marshal(treatmentsServiceError)
 	require.NoError(t, err)
 
-	nextDose := currentTime.AddDate(0, 0, 7).Truncate(0)
-	vaccines := []domain.Vaccine{
+	vaccinesResponse := []domain.VaccineResponse{
 		{
-			Name:      "Olvidala",
-			FirstDose: currentTime,
-			LastDose:  currentTime,
-			NextDose:  &nextDose,
+			ID:   "dameGuita",
+			Name: "despiertosParaPonerla",
+			Date: currentTime,
 		},
 		{
-			Name:      "LosPalmeras",
-			FirstDose: currentTime,
-			LastDose:  currentTime.Add(2 * time.Hour),
-			NextDose:  nil,
+			ID:   "lospalmeras",
+			Name: "Olvidala",
+			Date: currentTime,
+		},
+		{
+			ID:   "japiaguar",
+			Name: "despiertosParaPonerla",
+			Date: currentTime.Add(2 * time.Hour),
 		},
 	}
-	rawVaccines, err := json.Marshal(vaccines)
+
+	rawVaccinesResponse, err := json.Marshal(vaccinesResponse)
 	require.NoError(t, err)
 
 	// vaccines are sorted based on the LastDose
 	expectedVaccines := []domain.Vaccine{
 		{
-			Name:      "LosPalmeras",
-			FirstDose: currentTime,
-			LastDose:  currentTime.Add(2 * time.Hour),
-			NextDose:  nil,
+			Name:          "despiertosParaPonerla",
+			AmountOfDoses: 2,
+			FirstDose:     currentTime,
+			LastDose:      currentTime.Add(2 * time.Hour),
 		},
 		{
-			Name:      "Olvidala",
-			FirstDose: currentTime,
-			LastDose:  currentTime,
-			NextDose:  &nextDose,
+			Name:          "Olvidala",
+			AmountOfDoses: 1,
+			FirstDose:     currentTime,
+			LastDose:      currentTime,
 		},
 	}
 
@@ -478,10 +481,9 @@ func TestRequesterGetVaccines(t *testing.T) {
 			Name:      "Get vaccines correctly",
 			Requester: requester,
 			ClientMockConfig: &clientMockConfig{
-				RequestBody: bytes.NewReader(rawVaccines),
 				ResponseBody: &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewBuffer(rawVaccines)),
+					Body:       io.NopCloser(bytes.NewBuffer(rawVaccinesResponse)),
 				},
 				Err: nil,
 			},

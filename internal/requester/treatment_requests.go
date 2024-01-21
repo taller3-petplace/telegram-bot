@@ -240,8 +240,8 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 		)
 	}
 
-	var vaccines []domain.Vaccine
-	err = json.Unmarshal(responseBody, &vaccines)
+	var vaccinesResponse []domain.VaccineResponse
+	err = json.Unmarshal(responseBody, &vaccinesResponse)
 	if err != nil {
 		logrus.Errorf("error unmarshalling vaccines response: %v", err)
 		return nil, NewRequestError(
@@ -249,6 +249,26 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 			http.StatusInternalServerError,
 			"",
 		)
+	}
+
+	// Group vaccines by name
+	vaccinesMap := make(map[string][]domain.VaccineResponse)
+	for _, vac := range vaccinesResponse {
+		vaccinesMap[vac.Name] = append(vaccinesMap[vac.Name], vac)
+	}
+
+	// Generate response
+	var vaccines []domain.Vaccine
+	for vaccineName, vaccinesApplied := range vaccinesMap {
+		utils.SortElementsByDate(vaccinesApplied)
+
+		vaccine := domain.Vaccine{
+			Name:          vaccineName,
+			AmountOfDoses: len(vaccinesApplied),
+			FirstDose:     vaccinesApplied[len(vaccinesApplied)-1].Date,
+			LastDose:      vaccinesApplied[0].Date,
+		}
+		vaccines = append(vaccines, vaccine)
 	}
 
 	utils.SortElementsByDate(vaccines)

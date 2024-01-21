@@ -35,6 +35,21 @@ func TestCapitalize(t *testing.T) {
 	assert.Equal(t, "Te estas portando mal, seras castigada", capitalizeText)
 }
 
+func TestUnderlineText(t *testing.T) {
+	text := "hola que tal tu como estas? dime si eres feliz"
+	expectedResult := fmt.Sprintf("__%s__", text)
+	italicText := UnderlineText(text)
+	assert.Equal(t, expectedResult, italicText)
+}
+
+func TestSpoilerText(t *testing.T) {
+	text := "Olvídala. No es fácil para mí, por eso quiero hablarle, " +
+		"si es preciso rogarle que regrese a mi vida"
+	expectedResult := fmt.Sprintf("||%s||", text)
+	italicText := SpoilerText(text)
+	assert.Equal(t, expectedResult, italicText)
+}
+
 func TestOrderedList(t *testing.T) {
 	items := []string{
 		"Lichinha",

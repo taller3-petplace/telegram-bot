@@ -23,7 +23,10 @@ const (
 	getVetsEndpoint       = "/getVets"
 )
 
-// TelegramBot ToDo: add documentation
+// TelegramBot handles requests from telegram. Is in charge to interact with different services
+// in order to give a response to the request of the user.
+//
+// What this bot can do is defined in DefineHandlers
 type TelegramBot struct {
 	bot       *tele.Bot
 	usersDB   map[int64]bool

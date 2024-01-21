@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-// ToDo: define some validator functions
-
 var (
 	layout     = "2006/01/02"
 	validTypes = []string{
