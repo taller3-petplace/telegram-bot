@@ -39,11 +39,11 @@
         }
       },
       "get_treatment": {
-        "path": "/treatment/{treatmentID}",
+        "path": "/treatment/specific/{treatmentID}",
         "method": "GET"
       },
       "get_vaccines": {
-        "path": "/vaccines/pet/{petID}",
+        "path": "/application/pet/{petID}",
         "method": "GET",
         "query_params": {
           "offset": 0,
