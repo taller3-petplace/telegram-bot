@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	configFilePath = "internal/config/config.json"
+	configFilePath = "internal/requester/internal/config/config.json"
 )
 
 type httpClienter interface {
@@ -35,6 +35,6 @@ func NewRequester(client httpClienter) (*Requester, error) {
 	}
 
 	requester.clientHTTP = client
-
+	
 	return &requester, nil
 }

@@ -5,7 +5,6 @@ import (
 	"github.com/enescakir/emoji"
 	"io"
 	"os"
-	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -96,9 +95,7 @@ var animalEmojisMap = map[string]emoji.Emoji{
 }
 
 func ReadFileWithPath(configFilePath string, suffixToRemove string) ([]byte, error) {
-	_, file, _, _ := runtime.Caller(1)
-	filePath := strings.TrimSuffix(file, suffixToRemove)
-	filePath += configFilePath
+	filePath := configFilePath
 
 	configFile, err := os.Open(filePath)
 	if err != nil {
