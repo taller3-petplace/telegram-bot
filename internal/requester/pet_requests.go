@@ -84,8 +84,8 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetData, error) {
 		)
 	}
 
-	var petsData []domain.PetData
-	err = json.Unmarshal(responseBody, &petsData)
+	var petsResponse domain.PetsResponse
+	err = json.Unmarshal(responseBody, &petsResponse)
 	if err != nil {
 		logrus.Errorf("error unmarshalling pets data: %v", err)
 		return nil, NewRequestError(
@@ -95,7 +95,7 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetData, error) {
 		)
 	}
 
-	return petsData, nil
+	return petsResponse.PetsData, nil
 }
 
 // RegisterPet request to register the pet of a given user

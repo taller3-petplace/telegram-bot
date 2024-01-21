@@ -49,24 +49,31 @@ func TestRequesterGetPetsByOwnerID(t *testing.T) {
 	serviceErrorRaw, err := json.Marshal(petsServiceError)
 	require.NoError(t, err)
 
-	petsData := []domain.PetData{
-		{
-			PetDataIdentifier: domain.PetDataIdentifier{
-				ID:   1,
-				Name: "Cartucho",
-				Type: "DOG",
+	petsDataResponse := domain.PetsResponse{
+		PetsData: []domain.PetData{
+			{
+				PetDataIdentifier: domain.PetDataIdentifier{
+					ID:   1,
+					Name: "Cartucho",
+					Type: "DOG",
+				},
+			},
+			{
+				PetDataIdentifier: domain.PetDataIdentifier{
+					ID:   2,
+					Name: "Pantufla",
+					Type: "CAT",
+				},
 			},
 		},
-		{
-			PetDataIdentifier: domain.PetDataIdentifier{
-				ID:   2,
-				Name: "Pantufla",
-				Type: "CAT",
-			},
+		Paging: domain.Paging{
+			Total:  2,
+			Offset: 0,
+			Limit:  100,
 		},
 	}
 
-	rawPetsData, err := json.Marshal(petsData)
+	rawResponse, err := json.Marshal(petsDataResponse)
 	require.NoError(t, err)
 
 	testCases := []struct {
@@ -134,7 +141,7 @@ func TestRequesterGetPetsByOwnerID(t *testing.T) {
 			ClientMockConfig: &clientMockConfig{
 				ResponseBody: &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewBufferString(`{"id": "69abc"}`)),
+					Body:       io.NopCloser(bytes.NewBufferString(`{"results": [{"id": "69abc"}]}`)),
 				},
 				Err: nil,
 			},
@@ -147,12 +154,12 @@ func TestRequesterGetPetsByOwnerID(t *testing.T) {
 			ClientMockConfig: &clientMockConfig{
 				ResponseBody: &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewBuffer(rawPetsData)),
+					Body:       io.NopCloser(bytes.NewBuffer(rawResponse)),
 				},
 				Err: nil,
 			},
 			ExpectsError:     false,
-			ExpectedPetsData: petsData,
+			ExpectedPetsData: petsDataResponse.PetsData,
 			ExpectedError:    nil,
 		},
 	}

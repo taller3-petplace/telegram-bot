@@ -86,11 +86,11 @@ func getExpectedTreatmentsServiceEndpoints() map[string]config.Endpoint {
 			},
 		},
 		"get_treatment": {
-			Path:   "/treatment/{treatmentID}",
+			Path:   "/treatment/specific/{treatmentID}",
 			Method: http.MethodGet,
 		},
 		"get_vaccines": {
-			Path:   "/vaccines/pet/{petID}",
+			Path:   "/application/pet/{petID}",
 			Method: http.MethodGet,
 			QueryParams: &config.QueryParams{
 				Offset: 0,
