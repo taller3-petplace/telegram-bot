@@ -159,3 +159,9 @@ func extractAlarmData(alarmDataRaw string, fields ...string) (map[string]string,
 
 	return petData, nil
 }
+
+/*// isUserEnable returns true if the user is registered in PetPlace, otherwise false
+func (tb *TelegramBot) isUserEnable(telegramID int64) (bool, error) {
+	userInfo, err := tb.requester.GetUser(telegramID)
+
+}*/

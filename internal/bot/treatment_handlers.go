@@ -48,13 +48,10 @@ func (tb *TelegramBot) showVaccines(c tele.Context) error {
 	for _, vaccine := range vaccines {
 		message += fmt.Sprintf("%s\n", formatter.Bold(vaccine.Name))
 
-		// ToDo: sacarla y hacer logica join
-		// Hacer algo para que no le pegue a los servicios si no tiene data
-
 		doseDates := []string{
-			utils.DateToString(vaccine.FirstDose),
-			utils.DateToString(vaccine.LastDose),
-			formatter.SpoilerText("chupala N4ch0"),
+			fmt.Sprintf("Amount of doses applied: %v", vaccine.AmountOfDoses),
+			fmt.Sprintf("First Dose: %s", utils.DateToString(vaccine.FirstDose)),
+			fmt.Sprintf("Last Dose: %s", utils.DateToString(vaccine.LastDose)),
 		}
 
 		message += formatter.UnorderedList(doseDates)
