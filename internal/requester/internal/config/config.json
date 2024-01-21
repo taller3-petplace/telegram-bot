@@ -54,9 +54,9 @@
   },
   "users_service":
   {
-    "base": "http://localhost:8712/users",
+    "base": "https://api.lnt.digital/users",
     "endpoints": {
-      "user_fetcher":
+      "get_user":
       {
         "path": "/telegram_id/{telegramID}",
         "method": "GET"

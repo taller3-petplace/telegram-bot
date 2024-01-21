@@ -46,6 +46,7 @@ var (
 	errPerformingRequest               = errors.New("error performing request")
 	errReadingResponseBody             = errors.New("error reading response body")
 	errUnmarshallingMultiplePetsData   = errors.New("error unmarshalling multiple pets data")
+	errUnmarshallingUserData           = errors.New("error unmarshalling user data")
 	errUnmarshallingPetData            = errors.New("error unmarshalling pet data")
 	errUnmarshallingVaccinesData       = errors.New("error unmarshalling vaccines data")
 	errUnmarshallingTreatmentData      = errors.New("error unmarshalling treatment data")

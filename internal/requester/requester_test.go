@@ -30,7 +30,7 @@ func TestNewRequester(t *testing.T) {
 	assertServiceConfig(t, requester.TreatmentsService, expectedTreatmentsServiceConfig)
 
 	expectedUsersServiceConfig := expectedServiceConfig{
-		BaseURL:           "http://localhost:8712/users",
+		BaseURL:           "https://api.lnt.digital/users",
 		ExpectedEndpoints: getExpectedUsersServiceEndpoints(),
 	}
 	assertServiceConfig(t, requester.UsersService, expectedUsersServiceConfig)
@@ -102,7 +102,7 @@ func getExpectedTreatmentsServiceEndpoints() map[string]config.Endpoint {
 
 func getExpectedUsersServiceEndpoints() map[string]config.Endpoint {
 	return map[string]config.Endpoint{
-		"user_fetcher": {
+		"get_user": {
 			Path:   "/telegram_id/{telegramID}",
 			Method: http.MethodGet,
 		},
