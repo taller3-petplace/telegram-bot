@@ -25,8 +25,8 @@ type PetData struct {
 	Race      string    `json:"race,omitempty"`
 }
 
-// PetsData groups data from different pets for a given user
-type PetsData struct {
+// PetsResponse groups data from different pets for a given user
+type PetsResponse struct {
 	PetsData []PetData `json:"results"`
 	Paging   Paging    `json:"paging"`
 }
