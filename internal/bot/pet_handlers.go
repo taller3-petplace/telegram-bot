@@ -166,7 +166,7 @@ func (tb *TelegramBot) getPetInfo(c tele.Context) error {
 		return c.Send(template.TryAgainMessage())
 	}
 
-	message := fmt.Sprintf("%s \n\n", petData.Name)
+	message := fmt.Sprintf("%s \n\n", formatter.Bold(petData.Name))
 	petInfoItems := []string{
 		fmt.Sprintf("Age: %v", utils.CalculateYearsBetweenDates(petData.BirthDate)),
 		fmt.Sprintf("Type: %s %s", petData.Type, utils.GetEmojiForPetType(petData.Type)),

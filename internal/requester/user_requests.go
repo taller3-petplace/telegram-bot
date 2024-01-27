@@ -12,9 +12,9 @@ import (
 
 const getUser = "get_user"
 
-// GetUser fetches information about a user based on the given telegramID
-func (r *Requester) GetUser(telegramID int64) (domain.UserInfo, error) {
-	operation := "GetUser"
+// GetUserData fetches information about a user based on the given telegramID
+func (r *Requester) GetUserData(telegramID int64) (domain.UserInfo, error) {
+	operation := "GetUserData"
 	endpointData, err := r.UsersService.GetEndpoint(getUser)
 	if err != nil {
 		logrus.Errorf("%v", err)
@@ -32,7 +32,7 @@ func (r *Requester) GetUser(telegramID int64) (domain.UserInfo, error) {
 
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
-		logrus.Errorf("error performing GetUser: %v", err)
+		logrus.Errorf("error performing GetUserData: %v", err)
 		return domain.UserInfo{}, NewRequestError(
 			fmt.Errorf("%w %s", errPerformingRequest, operation),
 			http.StatusInternalServerError,
