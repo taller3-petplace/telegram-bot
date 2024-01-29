@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/enescakir/emoji"
+	"github.com/sirupsen/logrus"
 	tele "gopkg.in/telebot.v3"
 	"regexp"
 	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/bot/internal/template"
 	"telegram-bot/internal/bot/internal/validator"
+	"telegram-bot/internal/domain"
+	"telegram-bot/internal/requester"
 	"telegram-bot/internal/utils/formatter"
 )
 
@@ -30,7 +33,13 @@ func (tb *TelegramBot) start(c tele.Context) error {
 		return errUserInfoNotFound
 	}
 
-	if !tb.usersDB[senderInfo.ID] {
+	isRegistered, userInfo, err := tb.IsUserRegistered(senderInfo.ID)
+
+	if err != nil {
+		return c.Send("Oops, something went wrong searching your info. Please try again")
+	}
+
+	if !isRegistered {
 		button.Menu.Inline(
 			button.Menu.Row(button.CreateAccount),
 			button.Menu.Row(button.DontCreateAccount),
@@ -47,7 +56,7 @@ func (tb *TelegramBot) start(c tele.Context) error {
 		return c.Send(message, button.Menu)
 	}
 
-	welcomeMessage := template.WelcomeMessage(senderInfo.FirstName)
+	welcomeMessage := template.WelcomeMessage(userInfo.FullName)
 	return c.Send(welcomeMessage)
 }
 
@@ -58,8 +67,6 @@ func (tb *TelegramBot) createAccount(c tele.Context) error {
 		_ = c.Send(errUserInfoNotFound.Error())
 		return errUserInfoNotFound
 	}
-
-	tb.usersDB[senderInfo.ID] = true
 
 	signUpButton := button.SignUpButton(senderInfo.ID)
 	message := fmt.Sprintf("Click below to sign up %s", emoji.BackhandIndexPointingDown)
@@ -100,6 +107,30 @@ func (tb *TelegramBot) setAlarm(c tele.Context) error {
 	)
 
 	return c.Send("Please, enter the information about the alarm", alarmMenu)
+}
+
+// IsUserRegistered returns three elements:
+//
+// + First: a boolean to know if the user is registered or not
+//
+// + Second: the user information
+//
+// + Third: an error if something occurs requesting the user information
+func (tb *TelegramBot) IsUserRegistered(telegramID int64) (bool, domain.UserInfo, error) {
+	userInfo, err := tb.requester.GetUserData(telegramID)
+
+	var requestError requester.RequestError
+	isRequestError := errors.As(err, &requestError)
+	if isRequestError && requestError.IsNotFound() {
+		logrus.Infof("user with telegramID %v not found", telegramID)
+		return false, domain.UserInfo{}, nil
+	}
+
+	if err != nil {
+		return false, domain.UserInfo{}, err
+	}
+
+	return true, userInfo, nil
 }
 
 // registerAlarm register an alarm for the user with the provided data
