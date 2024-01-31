@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	getPets     = "get_pets"
-	registerPet = "register_pet"
-	getPetByID  = "get_pet_by_id"
+	getPets          = "get_pets"
+	registerPet      = "register_pet"
+	getPetByID       = "get_pet_by_id"
+	headerTelegramID = "X-Telegram-Id"
 )
 
 func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetData, error) {
@@ -38,6 +39,8 @@ func (r *Requester) GetPetsByOwnerID(ownerID int64) ([]domain.PetData, error) {
 		urlutils.AddQueryParams(request, endpointData.QueryParams.ToMap())
 	}
 
+	setTelegramHeader(request)
+	request.Header.Add(headerTelegramID, fmt.Sprint(ownerID))
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		logrus.Errorf("error performing getPetsByOwnerID: %v", err)
@@ -121,6 +124,8 @@ func (r *Requester) RegisterPet(petDataRequest domain.PetRequest) error {
 		return fmt.Errorf("%w: %v", errCreatingRequest, err)
 	}
 
+	setTelegramHeader(request)
+	request.Header.Add(headerTelegramID, fmt.Sprint(petDataRequest.OwnerID))
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		logrus.Errorf("error performing registerPet request: %v", err)
@@ -176,6 +181,7 @@ func (r *Requester) GetPetData(petID int) (domain.PetData, error) {
 		return domain.PetData{}, fmt.Errorf("%w: %v. Operation: %s", errCreatingRequest, err, operation)
 	}
 
+	setTelegramHeader(request)
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		logrus.Errorf("error performing getPet request: %v", err)

@@ -9,6 +9,7 @@ import (
 
 const (
 	configFilePath = "internal/config/config.json"
+	telegramHeader = "X-Telegram-App"
 )
 
 type httpClienter interface {
@@ -37,4 +38,9 @@ func NewRequester(client httpClienter) (*Requester, error) {
 	requester.clientHTTP = client
 
 	return &requester, nil
+}
+
+// setTelegramHeader sets a header to indicate that the request come from Telegram Service
+func setTelegramHeader(request *http.Request) {
+	request.Header.Add(telegramHeader, "true")
 }

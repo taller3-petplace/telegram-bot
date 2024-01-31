@@ -39,6 +39,7 @@ func (r *Requester) GetTreatmentsByPetID(petID int) ([]domain.Treatment, error) 
 		urlutils.AddQueryParams(request, endpointData.QueryParams.ToMap())
 	}
 
+	setTelegramHeader(request)
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		logrus.Errorf("error performing getTreatmentsByPetID: %v", err)
@@ -117,6 +118,7 @@ func (r *Requester) GetTreatment(treatmentID string) (domain.Treatment, error) {
 		return domain.Treatment{}, fmt.Errorf("%w: %v. Operation: %s", errCreatingRequest, err, operation)
 	}
 
+	setTelegramHeader(request)
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		logrus.Errorf("error performing getTreatment request: %v", err)
@@ -194,6 +196,7 @@ func (r *Requester) GetVaccines(petID int) ([]domain.Vaccine, error) {
 		return nil, fmt.Errorf("%w: %v. Operation: %s", errCreatingRequest, err, operation)
 	}
 
+	setTelegramHeader(request)
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		logrus.Errorf("error performing getVaccines request: %v", err)

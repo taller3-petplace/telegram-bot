@@ -30,6 +30,7 @@ func (r *Requester) GetUserData(telegramID int64) (domain.UserInfo, error) {
 		return domain.UserInfo{}, err
 	}
 
+	setTelegramHeader(request)
 	response, err := r.clientHTTP.Do(request)
 	if err != nil {
 		logrus.Errorf("error performing GetUserData: %v", err)
