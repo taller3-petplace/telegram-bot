@@ -41,11 +41,14 @@ func TestRequesterGetUser(t *testing.T) {
 	serviceErrorRaw, err := json.Marshal(usersServiceError)
 	require.NoError(t, err)
 
-	userServiceResponse := domain.UserInfo{
-		UserID:   69,
-		FullName: "Larry Capija",
-		Email:    "larrydick@testmail.com",
-		City:     "комната твоей сестры",
+	userServiceResponse := domain.UserServiceResponse{
+		UserData: domain.UserInfo{
+			UserID:   69,
+			FullName: "Larry Capija",
+			Email:    "larrydick@testmail.com",
+			City:     "комната твоей сестры",
+		},
+		Code: http.StatusOK,
 	}
 
 	rawResponse, err := json.Marshal(userServiceResponse)
@@ -116,7 +119,7 @@ func TestRequesterGetUser(t *testing.T) {
 			ClientMockConfig: &clientMockConfig{
 				ResponseBody: &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewBufferString(`{"user_id": "69abc"}`)),
+					Body:       io.NopCloser(bytes.NewBufferString(`{"code": "69abc"}`)),
 				},
 				Err: nil,
 			},
@@ -134,7 +137,7 @@ func TestRequesterGetUser(t *testing.T) {
 				Err: nil,
 			},
 			ExpectsError:     false,
-			ExpectedUserData: userServiceResponse,
+			ExpectedUserData: userServiceResponse.UserData,
 			ExpectedError:    nil,
 		},
 	}

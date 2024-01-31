@@ -76,8 +76,8 @@ func (r *Requester) GetUserData(telegramID int64) (domain.UserInfo, error) {
 		)
 	}
 
-	var userInfo domain.UserInfo
-	err = json.Unmarshal(responseBody, &userInfo)
+	var userServiceResponse domain.UserServiceResponse
+	err = json.Unmarshal(responseBody, &userServiceResponse)
 	if err != nil {
 		logrus.Errorf("error unmarshalling user data: %v", err)
 		return domain.UserInfo{}, NewRequestError(
@@ -87,5 +87,5 @@ func (r *Requester) GetUserData(telegramID int64) (domain.UserInfo, error) {
 		)
 	}
 
-	return userInfo, nil
+	return userServiceResponse.UserData, nil
 }
