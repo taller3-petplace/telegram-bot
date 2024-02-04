@@ -20,7 +20,7 @@ func NewNotificationSender(telegramBot *bot.TelegramBot) *NotificationsSender {
 	}
 }
 
-// TriggerNotifications sends each notification that receives to the corresponding user
+// TriggerNotifications sends each notification that receives to the corresponding user. Best effort procedure
 func (ns *NotificationsSender) TriggerNotifications(c *gin.Context) {
 	// ToDo: add some validation about the source app
 	var notifications []notification.Notification

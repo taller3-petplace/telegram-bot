@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	tele "gopkg.in/telebot.v3"
 	"net/http"
 	"os"
@@ -13,7 +14,8 @@ import (
 )
 
 const (
-	tokenKey = "TELEGRAM_BOT_TOKEN"
+	tokenKey      = "TELEGRAM_BOT_TOKEN"
+	senderPortKey = "SENDER_PORT"
 )
 
 type notificationSender interface {
@@ -65,11 +67,18 @@ func (a *App) RegisterRoutes(r *gin.Engine) {
 func (a *App) Run(r *gin.Engine) error {
 	errChannel := make(chan error, 1)
 	go func() {
+		logrus.Info("Starting bot")
 		a.telegramBot.StartBot()
 	}()
 
+	port := os.Getenv(senderPortKey)
+	if port == "" {
+		logrus.Info("Using default port (8080) for notification sender")
+		port = "8080"
+	}
 	go func() {
-		errChannel <- r.Run(":6900")
+		logrus.Info("Starting notification sender")
+		errChannel <- r.Run(fmt.Sprintf(":%s", port))
 	}()
 
 	err := <-errChannel
