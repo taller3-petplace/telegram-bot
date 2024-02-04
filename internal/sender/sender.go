@@ -20,6 +20,11 @@ func NewNotificationSender(telegramBot *bot.TelegramBot) *NotificationsSender {
 	}
 }
 
+type summary struct {
+	OK   int `json:"ok"`
+	Fail int `json:"fail"`
+}
+
 // TriggerNotifications sends each notification that receives to the corresponding user. Best effort procedure
 func (ns *NotificationsSender) TriggerNotifications(c *gin.Context) {
 	var notifications []notification.Notification
@@ -32,6 +37,7 @@ func (ns *NotificationsSender) TriggerNotifications(c *gin.Context) {
 		return
 	}
 
+	counter := 0
 	for _, notificationToSend := range notifications {
 		// Best effort
 		telegramID, err := strconv.Atoi(notificationToSend.TelegramID)
@@ -43,8 +49,13 @@ func (ns *NotificationsSender) TriggerNotifications(c *gin.Context) {
 		err = ns.telegramBot.SendNotification(int64(telegramID), notificationToSend.Message)
 		if err != nil {
 			logrus.Errorf("error sending notification, telegram_id: %s", notificationToSend.TelegramID)
+			continue
 		}
+		counter++
 	}
 
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, summary{
+		OK:   counter,
+		Fail: len(notifications) - counter,
+	})
 }

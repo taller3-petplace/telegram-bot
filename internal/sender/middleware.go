@@ -22,7 +22,11 @@ func AccessControl() gin.HandlerFunc {
 		err := checkAccessToken(c.Request.Header.Get(jwtHeader))
 		if err != nil {
 			logrus.Error(err)
-			c.JSON(http.StatusUnauthorized, "Hi FBI? we have a badass trying to make requests against our app")
+			errResponse := errorResponse{
+				StatusCode: http.StatusUnauthorized,
+				Message:    "Hi FBI? we have a badass trying to make requests against our app",
+			}
+			c.JSON(errResponse.StatusCode, errResponse)
 			c.Abort()
 			return
 		}
