@@ -17,7 +17,9 @@ func RegisterPet() string {
 
 // Alarm contains the data to set an alarm for a given period or even indeterminately
 func Alarm() string {
-	form := "Hour: hh:mm\n\n"
+	form := "Message: message to be sent\n\n"
+	form += "Hours: hh1:mm1, hh2:mm2\n\n"
+	form += "Start Date: yyyy/mm/dd\n\n"
 	form += "End Date: yyyy/mm/dd or N/A"
 
 	return form

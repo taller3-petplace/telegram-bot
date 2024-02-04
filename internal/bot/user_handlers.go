@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	tele "gopkg.in/telebot.v3"
 	"regexp"
+	"strings"
 	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/bot/internal/template"
 	"telegram-bot/internal/bot/internal/validator"
@@ -16,7 +17,9 @@ import (
 )
 
 const (
-	hourTag       = "Hour"
+	messageTag    = "Message"
+	hoursTag      = "Hours"
+	startDateTag  = "StartDate"
 	endDateTag    = "EndDate"
 	notApplicable = "N/A"
 )
@@ -141,7 +144,7 @@ func (tb *TelegramBot) registerAlarm(c tele.Context) error {
 		return errUserInfoNotFound
 	}
 
-	alarmData, err := extractAlarmData(c.Message().Text, hourTag, endDateTag)
+	alarmData, err := extractAlarmData(c.Message().Text, messageTag, hoursTag, startDateTag, endDateTag)
 	if err != nil && errors.Is(err, errInvalidForm) {
 		return c.Send(fmt.Sprintf("%v Invalid form, you don't have to modify the structure, only the field values. %s",
 			emoji.PoliceCarLight,
@@ -153,8 +156,18 @@ func (tb *TelegramBot) registerAlarm(c tele.Context) error {
 		return c.Send("%v %v. %s", emoji.PoliceCarLight, err, tryAgainAlarmMessage)
 	}
 
-	if err := validator.ValidateHour(alarmData[hourTag]); err != nil {
-		return c.Send(fmt.Sprintf("%v. %s", err, tryAgainAlarmMessage))
+	if len(alarmData[hoursTag]) < 5 {
+		return c.Send(fmt.Sprintf("Message must have at least 5 characters. %s", tryAgainAlarmMessage))
+	}
+
+	for _, hour := range strings.Split(alarmData[hoursTag], ",") {
+		if err := validator.ValidateHour(hour); err != nil {
+			return c.Send(fmt.Sprintf("%v. %s", err, tryAgainAlarmMessage))
+		}
+	}
+
+	if err := validator.ValidateDateType(alarmData[startDateTag]); err != nil {
+		return c.Send(fmt.Sprintf("Invalid start date: format must be year/month/day. %s", tryAgainAlarmMessage))
 	}
 
 	if err := validator.ValidateDateType(alarmData[endDateTag]); alarmData[endDateTag] != notApplicable && err != nil {
@@ -168,7 +181,7 @@ func (tb *TelegramBot) registerAlarm(c tele.Context) error {
 
 // extractAlarmData extracts alarm data from the given message. Does not validate the fields, it only ensures that they are all present
 func extractAlarmData(alarmDataRaw string, fields ...string) (map[string]string, error) {
-	regex := regexp.MustCompile(`Hour:\s*(?P<Hour>[^\n]*)\s+End Date:\s*(?P<EndDate>([^\n]*|N/A))`)
+	regex := regexp.MustCompile(`Message:\s*(?P<Message>([^\n]*))\s*Hours:\s*(?P<Hours>[^\n]*)\s+Start Date:\s*(?P<StartDate>([^\n]*))\s+End Date:\s*(?P<EndDate>([^\n]*|N/A))`)
 	match := regex.FindStringSubmatch(alarmDataRaw)
 	if match == nil {
 		return nil, fmt.Errorf("%w", errInvalidForm)
@@ -178,7 +191,7 @@ func extractAlarmData(alarmDataRaw string, fields ...string) (map[string]string,
 	petData := make(map[string]string)
 	for idx, groupName := range regex.SubexpNames() {
 		if idx != 0 && groupName != "" {
-			petData[groupName] = match[idx]
+			petData[groupName] = strings.TrimRight(match[idx], " ")
 		}
 	}
 
