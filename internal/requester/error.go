@@ -20,6 +20,11 @@ type treatmentServiceErrorResponse struct {
 	Msg  string `json:"msg"`
 }
 
+type notificationServiceErrorResponse struct {
+	StatusCode int    `json:"status_code"`
+	Message    string `json:"message"`
+}
+
 func (petError petServiceErrorResponse) GetMessage() string {
 	return petError.Message
 }
@@ -36,6 +41,14 @@ func (treatmentError treatmentServiceErrorResponse) GetStatus() int {
 	return treatmentError.Code
 }
 
+func (notificationError notificationServiceErrorResponse) GetMessage() string {
+	return notificationError.Message
+}
+
+func (notificationError notificationServiceErrorResponse) GetStatus() int {
+	return notificationError.StatusCode
+}
+
 type serviceError interface {
 	GetMessage() string
 	GetStatus() int
@@ -47,11 +60,13 @@ var (
 	errReadingResponseBody             = errors.New("error reading response body")
 	errUnmarshallingMultiplePetsData   = errors.New("error unmarshalling multiple pets data")
 	errUnmarshallingUserData           = errors.New("error unmarshalling user data")
+	errUnmarshallingNotificationsData  = errors.New("error unmarshalling notifications data")
 	errUnmarshallingPetData            = errors.New("error unmarshalling pet data")
 	errUnmarshallingVaccinesData       = errors.New("error unmarshalling vaccines data")
 	errUnmarshallingTreatmentData      = errors.New("error unmarshalling treatment data")
 	errUnmarshallingMultipleTreatments = errors.New("error unmarshalling multiple treatments")
 	errMarshallingPetRequest           = errors.New("error marshalling pet request")
+	errMarshallingNotificationRequest  = errors.New("error marshalling notification request")
 	errCreatingRequest                 = errors.New("error creating request")
 	errNilResponse                     = errors.New("error nil response")
 	errUnmarshallingErrorResponse      = errors.New("error unmarshalling error response")

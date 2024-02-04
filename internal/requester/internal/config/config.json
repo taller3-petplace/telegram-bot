@@ -62,5 +62,16 @@
         "method": "GET"
       }
     }
+  },
+  "notifications_service":
+  {
+    "base": "https://api.lnt.digital/notifications",
+    "endpoints": {
+      "schedule_notifications":
+      {
+        "path": "/notification",
+        "method": "POST"
+      }
+    }
   }
 }

@@ -17,10 +17,11 @@ type httpClienter interface {
 }
 
 type Requester struct {
-	PetsService       config.ServiceEndpoints `json:"pets_service"`
-	TreatmentsService config.ServiceEndpoints `json:"treatments_service"`
-	UsersService      config.ServiceEndpoints `json:"users_service"`
-	clientHTTP        httpClienter
+	PetsService          config.ServiceEndpoints `json:"pets_service"`
+	TreatmentsService    config.ServiceEndpoints `json:"treatments_service"`
+	UsersService         config.ServiceEndpoints `json:"users_service"`
+	NotificationsService config.ServiceEndpoints `json:"notifications_service"`
+	clientHTTP           httpClienter
 }
 
 func NewRequester(client httpClienter) (*Requester, error) {
