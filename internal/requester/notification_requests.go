@@ -12,9 +12,9 @@ import (
 
 const scheduleNotifications = "schedule_notifications"
 
-// ScheduleNotifications sends a request to Notification Scheduler service to create multiple notifications
+// RegisterNotifications sends a request to Notification Scheduler service to create multiple notifications
 // with the provided data in domain.NotificationRequest
-func (r *Requester) ScheduleNotifications(notificationRequest domain.NotificationRequest) ([]domain.NotificationResponse, error) {
+func (r *Requester) RegisterNotifications(notificationRequest domain.NotificationRequest) ([]domain.NotificationResponse, error) {
 	operation := "ScheduleNotifications"
 	endpointData, err := r.UsersService.GetEndpoint(scheduleNotifications)
 	if err != nil {

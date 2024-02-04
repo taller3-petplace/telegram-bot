@@ -12,15 +12,15 @@ const (
 	botUsername = "@pet_place_bot"
 
 	// Endpoints
-	startEndpoint         = "/start"
-	helpEndpoint          = "/help"
-	createPetEndpoint     = "/createPet"
-	getPets               = "/getPets"
-	registerPetEndpoint   = "/addPetRecord"
-	salchiFactEndpoint    = "/salchiFact"
-	setAlarmEndpoint      = "/setAlarm"
-	registerAlarmEndpoint = "/alarm"
-	getVetsEndpoint       = "/getVets"
+	startEndpoint                = "/start"
+	helpEndpoint                 = "/help"
+	createPetEndpoint            = "/createPet"
+	getPets                      = "/getPets"
+	registerPetEndpoint          = "/addPetRecord"
+	salchiFactEndpoint           = "/salchiFact"
+	setNotificationEndpoint      = "/setNotification"
+	registerNotificationEndpoint = "/notification"
+	getVetsEndpoint              = "/getVets"
 )
 
 // TelegramBot handles requests from telegram. Is in charge to interact with different services
@@ -57,7 +57,7 @@ func (tb *TelegramBot) DefineHandlers() {
 
 	tb.bot.Handle(getVetsEndpoint, tb.getVets)
 
-	tb.bot.Handle(setAlarmEndpoint, tb.setAlarm)
+	tb.bot.Handle(setNotificationEndpoint, tb.setAlarm)
 
 	// Button handlers
 	tb.bot.Handle(&button.CreateAccount, tb.createAccount)
