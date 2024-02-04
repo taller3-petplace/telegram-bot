@@ -37,11 +37,8 @@ func (ns *NotificationsSender) TriggerNotifications(c *gin.Context) {
 		// Best effort
 		telegramID, err := strconv.Atoi(notificationToSend.TelegramID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, errorResponse{
-				StatusCode: http.StatusBadRequest,
-				Message:    fmt.Sprintf("error invalid telegramID: %s", notificationToSend.TelegramID),
-			})
-			return
+			logrus.Errorf("error invalid telegramID: %s", notificationToSend.TelegramID)
+			continue
 		}
 
 		err = ns.telegramBot.SendNotification(int64(telegramID), notificationToSend.Message)
