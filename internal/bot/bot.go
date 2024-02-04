@@ -1,6 +1,8 @@
 package bot
 
 import (
+	"fmt"
+	"github.com/enescakir/emoji"
 	tele "gopkg.in/telebot.v3"
 	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/requester"
@@ -80,4 +82,18 @@ func (tb *TelegramBot) DefineHandlers() {
 
 func (tb *TelegramBot) StartBot() {
 	tb.bot.Start()
+}
+
+func (tb *TelegramBot) SendNotification(telegramID int64, messageBody string) error {
+	chat, err := tb.bot.ChatByID(telegramID)
+	if err != nil {
+		return fmt.Errorf("error fetching chat of user %d: %v", telegramID, err)
+	}
+	message := fmt.Sprintf("Scheduled notification %s\n%s", emoji.AlarmClock, messageBody)
+	_, err = tb.bot.Send(chat, message)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

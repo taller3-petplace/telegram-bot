@@ -2,11 +2,13 @@ package app
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	tele "gopkg.in/telebot.v3"
 	"net/http"
 	"os"
 	"telegram-bot/internal/bot"
 	"telegram-bot/internal/requester"
+	"telegram-bot/internal/sender"
 	"time"
 )
 
@@ -14,11 +16,17 @@ const (
 	tokenKey = "TELEGRAM_BOT_TOKEN"
 )
 
-type Telegramer struct {
-	telegramBot *bot.TelegramBot
+type notificationSender interface {
+	RegisterRoutes(r *gin.Engine)
+	TriggerNotifications(c *gin.Context)
 }
 
-func NewTelegramer() (*Telegramer, error) {
+type App struct {
+	telegramBot         *bot.TelegramBot
+	notificationsSender notificationSender
+}
+
+func NewApp() (*App, error) {
 	botToken := os.Getenv(tokenKey)
 	if botToken == "" {
 		return nil, fmt.Errorf("bot token is missing")
@@ -43,13 +51,27 @@ func NewTelegramer() (*Telegramer, error) {
 
 	telegramBot := bot.NewTelegramBot(botInstance, serviceRequester)
 
-	return &Telegramer{
-		telegramBot: telegramBot,
+	return &App{
+		telegramBot:         telegramBot,
+		notificationsSender: sender.NewNotificationSender(telegramBot),
 	}, nil
 }
 
-func (t *Telegramer) Start() error {
-	t.telegramBot.DefineHandlers()
-	t.telegramBot.StartBot()
-	return nil
+func (a *App) RegisterRoutes(r *gin.Engine) {
+	a.telegramBot.DefineHandlers()
+	a.notificationsSender.RegisterRoutes(r)
+}
+
+func (a *App) Run(r *gin.Engine) error {
+	errChannel := make(chan error, 1)
+	go func() {
+		a.telegramBot.StartBot()
+	}()
+
+	go func() {
+		errChannel <- r.Run(":6900")
+	}()
+
+	err := <-errChannel
+	return err
 }
