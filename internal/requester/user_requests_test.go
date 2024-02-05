@@ -43,7 +43,7 @@ func TestRequesterGetUser(t *testing.T) {
 
 	userServiceResponse := domain.UserServiceResponse{
 		UserData: domain.UserInfo{
-			UserID:   69,
+			UserID:   "69",
 			FullName: "Larry Capija",
 			Email:    "larrydick@testmail.com",
 			City:     "комната твоей сестры",

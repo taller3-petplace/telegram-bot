@@ -34,7 +34,7 @@ func NewPetRequest(petData map[string]string, userID int64) domain.PetRequest {
 		Name:         formatter.Capitalize(petData[nameTag]),
 		Type:         strings.ToLower(petData[typeTag]),
 		BirthDate:    dateFormatted,
-		OwnerID:      userID,
+		OwnerID:      fmt.Sprint(userID),
 		RegisterDate: time.Now(),
 	}
 }
