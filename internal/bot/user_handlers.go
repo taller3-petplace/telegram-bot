@@ -7,21 +7,26 @@ import (
 	"github.com/sirupsen/logrus"
 	tele "gopkg.in/telebot.v3"
 	"regexp"
+	"strings"
 	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/bot/internal/template"
 	"telegram-bot/internal/bot/internal/validator"
 	"telegram-bot/internal/domain"
 	"telegram-bot/internal/requester"
+	"telegram-bot/internal/utils"
 	"telegram-bot/internal/utils/formatter"
+	"time"
 )
 
 const (
-	hourTag       = "Hour"
+	messageTag    = "Message"
+	hoursTag      = "Hours"
+	startDateTag  = "StartDate"
 	endDateTag    = "EndDate"
 	notApplicable = "N/A"
 )
 
-var tryAgainAlarmMessage = "Try again editing the form message or execute /setAlarm to start again"
+var tryAgainNotificationMessage = "Try again editing the form message or execute /setNotification to start again"
 
 // start this endpoint has two possible flows
 // 1. If the user is registered, awaits for other commands
@@ -97,8 +102,8 @@ func (tb *TelegramBot) setAlarm(c tele.Context) error {
 	alarmMenu := tb.bot.NewMarkup()
 	helpButton := alarmMenu.Text("Click here to display the alarm form")
 
-	alarmForm := fmt.Sprintf("%s\n\n", registerAlarmEndpoint)
-	alarmForm += template.Alarm()
+	alarmForm := fmt.Sprintf("%s\n\n", registerNotificationEndpoint)
+	alarmForm += template.NotificationForm()
 
 	helpButton.InlineQueryChat = alarmForm
 
@@ -133,60 +138,103 @@ func (tb *TelegramBot) IsUserRegistered(telegramID int64) (bool, domain.UserInfo
 	return true, userInfo, nil
 }
 
-// registerAlarm register an alarm for the user with the provided data
-func (tb *TelegramBot) registerAlarm(c tele.Context) error {
+// registerNotification register an alarm for the user with the provided data
+func (tb *TelegramBot) registerNotification(c tele.Context) error {
 	senderInfo := c.Sender()
 	if senderInfo == nil {
 		_ = c.Send(errUserInfoNotFound.Error())
 		return errUserInfoNotFound
 	}
 
-	alarmData, err := extractAlarmData(c.Message().Text, hourTag, endDateTag)
+	notificationData, err := extractAlarmData(c.Message().Text, messageTag, hoursTag, startDateTag, endDateTag)
 	if err != nil && errors.Is(err, errInvalidForm) {
 		return c.Send(fmt.Sprintf("%v Invalid form, you don't have to modify the structure, only the field values. %s",
 			emoji.PoliceCarLight,
-			tryAgainAlarmMessage,
+			tryAgainNotificationMessage,
 		))
 	}
 
 	if err != nil && errors.Is(err, errMissingFormField) {
-		return c.Send("%v %v. %s", emoji.PoliceCarLight, err, tryAgainAlarmMessage)
+		return c.Send("%v %v. %s", emoji.PoliceCarLight, err, tryAgainNotificationMessage)
 	}
 
-	if err := validator.ValidateHour(alarmData[hourTag]); err != nil {
-		return c.Send(fmt.Sprintf("%v. %s", err, tryAgainAlarmMessage))
+	if len(notificationData[hoursTag]) < 5 {
+		return c.Send(fmt.Sprintf("Message must have at least 5 characters. %s", tryAgainNotificationMessage))
 	}
 
-	if err := validator.ValidateDateType(alarmData[endDateTag]); alarmData[endDateTag] != notApplicable && err != nil {
-		return c.Send(fmt.Sprintf("Invalid end date: format must be year/month/day. %s", tryAgainAlarmMessage))
+	hours := strings.Split(notificationData[hoursTag], ",")
+	for _, hour := range hours {
+		if err := validator.ValidateHour(hour); err != nil {
+			return c.Send(fmt.Sprintf("%v. %s", err, tryAgainNotificationMessage))
+		}
 	}
 
-	// ToDo: add request to ticker service. Licha
+	if err := validator.ValidateDateType(notificationData[startDateTag]); err != nil {
+		return c.Send(fmt.Sprintf("Invalid start date: format must be year/month/day. %s", tryAgainNotificationMessage))
+	}
+	startDate, _ := time.Parse(time.DateOnly, notificationData[startDateTag])
 
-	return c.Send("Your alarm was set correctly")
+	if err := validator.ValidateDateType(notificationData[endDateTag]); notificationData[endDateTag] != notApplicable && err != nil {
+		return c.Send(fmt.Sprintf("Invalid end date: format must be year/month/day. %s", tryAgainNotificationMessage))
+	}
+	var endDate *time.Time
+	if notificationData[endDateTag] != notApplicable {
+		endDateData, _ := time.Parse(time.DateOnly, notificationData[endDateTag])
+		endDate = &endDateData
+	}
+
+	notificationRequest := domain.NewNotificationRequest(
+		fmt.Sprint(senderInfo.ID),
+		notificationData[messageTag],
+		startDate,
+		endDate,
+		hours,
+	)
+	notifications, err := tb.requester.RegisterNotifications(notificationRequest)
+	if err != nil {
+		return c.Send(fmt.Sprintf("Oops, something went wrong creating the notifications. %s", tryAgainNotificationMessage))
+	}
+	
+	message := "Your notifications were set correctly:\n\n"
+	for idx, notification := range notifications {
+		data := fmt.Sprintf("Notification %d:\n", idx+1)
+		endDateStr := "undefined"
+		if notification.EndDate != nil {
+			endDateStr = utils.DateToString(*notification.EndDate)
+		}
+		data += formatter.UnorderedList([]string{
+			fmt.Sprintf("ID: %s", notification.ID),
+			fmt.Sprintf("Hour: %s", notification.Hour),
+			fmt.Sprintf("Start Date: %s", utils.DateToString(notification.StartDate)),
+			fmt.Sprintf("End Date: %s", endDateStr),
+		})
+		message += data
+	}
+
+	return c.Send(message)
 }
 
 // extractAlarmData extracts alarm data from the given message. Does not validate the fields, it only ensures that they are all present
 func extractAlarmData(alarmDataRaw string, fields ...string) (map[string]string, error) {
-	regex := regexp.MustCompile(`Hour:\s*(?P<Hour>[^\n]*)\s+End Date:\s*(?P<EndDate>([^\n]*|N/A))`)
+	regex := regexp.MustCompile(`Message:\s*(?P<Message>([^\n]*))\s*Hours:\s*(?P<Hours>[^\n]*)\s+Start Date:\s*(?P<StartDate>([^\n]*))\s+End Date:\s*(?P<EndDate>([^\n]*|N/A))`)
 	match := regex.FindStringSubmatch(alarmDataRaw)
 	if match == nil {
 		return nil, fmt.Errorf("%w", errInvalidForm)
 	}
 
 	// groupName are capture from the regex expression
-	petData := make(map[string]string)
+	alarmData := make(map[string]string)
 	for idx, groupName := range regex.SubexpNames() {
 		if idx != 0 && groupName != "" {
-			petData[groupName] = match[idx]
+			alarmData[groupName] = strings.TrimRight(match[idx], " ")
 		}
 	}
 
 	for _, field := range fields {
-		if _, found := petData[field]; !found {
+		if _, found := alarmData[field]; !found {
 			return nil, fmt.Errorf("%w: %s", errMissingFormField, field)
 		}
 	}
 
-	return petData, nil
+	return alarmData, nil
 }

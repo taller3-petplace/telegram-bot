@@ -1,6 +1,8 @@
 package bot
 
 import (
+	"fmt"
+	"github.com/enescakir/emoji"
 	tele "gopkg.in/telebot.v3"
 	"telegram-bot/internal/bot/internal/button"
 	"telegram-bot/internal/requester"
@@ -12,15 +14,15 @@ const (
 	botUsername = "@pet_place_bot"
 
 	// Endpoints
-	startEndpoint         = "/start"
-	helpEndpoint          = "/help"
-	createPetEndpoint     = "/createPet"
-	getPets               = "/getPets"
-	registerPetEndpoint   = "/addPetRecord"
-	salchiFactEndpoint    = "/salchiFact"
-	setAlarmEndpoint      = "/setAlarm"
-	registerAlarmEndpoint = "/alarm"
-	getVetsEndpoint       = "/getVets"
+	startEndpoint                = "/start"
+	helpEndpoint                 = "/help"
+	createPetEndpoint            = "/createPet"
+	getPets                      = "/getPets"
+	registerPetEndpoint          = "/addPetRecord"
+	salchiFactEndpoint           = "/salchiFact"
+	setNotificationEndpoint      = "/setNotification"
+	registerNotificationEndpoint = "/notification"
+	getVetsEndpoint              = "/getVets"
 )
 
 // TelegramBot handles requests from telegram. Is in charge to interact with different services
@@ -57,7 +59,7 @@ func (tb *TelegramBot) DefineHandlers() {
 
 	tb.bot.Handle(getVetsEndpoint, tb.getVets)
 
-	tb.bot.Handle(setAlarmEndpoint, tb.setAlarm)
+	tb.bot.Handle(setNotificationEndpoint, tb.setAlarm)
 
 	// Button handlers
 	tb.bot.Handle(&button.CreateAccount, tb.createAccount)
@@ -80,4 +82,18 @@ func (tb *TelegramBot) DefineHandlers() {
 
 func (tb *TelegramBot) StartBot() {
 	tb.bot.Start()
+}
+
+func (tb *TelegramBot) SendNotification(telegramID int64, messageBody string) error {
+	chat, err := tb.bot.ChatByID(telegramID)
+	if err != nil {
+		return fmt.Errorf("error fetching chat of user %d: %v", telegramID, err)
+	}
+	message := fmt.Sprintf("Scheduled notification %s\n%s", emoji.AlarmClock, messageBody)
+	_, err = tb.bot.Send(chat, message)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

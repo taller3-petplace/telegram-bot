@@ -9,6 +9,7 @@ import (
 
 const (
 	configFilePath = "internal/requester/internal/config/config.json"
+	telegramHeader = "X-Telegram-App"
 )
 
 type httpClienter interface {
@@ -16,10 +17,11 @@ type httpClienter interface {
 }
 
 type Requester struct {
-	PetsService       config.ServiceEndpoints `json:"pets_service"`
-	TreatmentsService config.ServiceEndpoints `json:"treatments_service"`
-	UsersService      config.ServiceEndpoints `json:"users_service"`
-	clientHTTP        httpClienter
+	PetsService          config.ServiceEndpoints `json:"pets_service"`
+	TreatmentsService    config.ServiceEndpoints `json:"treatments_service"`
+	UsersService         config.ServiceEndpoints `json:"users_service"`
+	NotificationsService config.ServiceEndpoints `json:"notifications_service"`
+	clientHTTP           httpClienter
 }
 
 func NewRequester(client httpClienter) (*Requester, error) {
@@ -35,6 +37,11 @@ func NewRequester(client httpClienter) (*Requester, error) {
 	}
 
 	requester.clientHTTP = client
-	
+
 	return &requester, nil
+}
+
+// setTelegramHeader sets a header to indicate that the request come from Telegram Service
+func setTelegramHeader(request *http.Request) {
+	request.Header.Add(telegramHeader, "true")
 }
