@@ -8,7 +8,7 @@ type PetRequest struct {
 	Type         string    `json:"type"`
 	RegisterDate time.Time `json:"register_date"`
 	BirthDate    string    `json:"birth_date"`
-	OwnerID      int64     `json:"owner_id"`
+	OwnerID      string    `json:"owner_id"`
 }
 
 // PetDataIdentifier brief data to identify a pet

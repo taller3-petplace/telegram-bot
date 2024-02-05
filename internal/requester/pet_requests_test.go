@@ -213,7 +213,7 @@ func TestRequesterRegisterPet(t *testing.T) {
 		Type:         "DOG",
 		RegisterDate: time.Now(),
 		BirthDate:    "2013/05/15",
-		OwnerID:      ownerID,
+		OwnerID:      fmt.Sprint(ownerID),
 	}
 	rawPetRequest, err := json.Marshal(petRequest)
 	require.NoError(t, err)
