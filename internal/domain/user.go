@@ -7,7 +7,7 @@ type UserServiceResponse struct {
 }
 
 type UserInfo struct {
-	UserID   int    `json:"id"`
+	UserID   string `json:"id"`
 	FullName string `json:"fullname"`
 	Email    string `json:"email"`
 	City     string `json:"city"`
