@@ -42,13 +42,13 @@ func (ns *NotificationsSender) TriggerNotifications(c *gin.Context) {
 		// Best effort
 		telegramID, err := strconv.Atoi(notificationToSend.TelegramID)
 		if err != nil {
-			logrus.Errorf("error invalid telegramID: %s", notificationToSend.TelegramID)
+			logrus.Errorf("error invalid telegramID %s: %v", notificationToSend.TelegramID, err)
 			continue
 		}
 
 		err = ns.telegramBot.SendNotification(int64(telegramID), notificationToSend.Message)
 		if err != nil {
-			logrus.Errorf("error sending notification, telegram_id: %s", notificationToSend.TelegramID)
+			logrus.Errorf("error sending notification, telegram_id: %s: %v", notificationToSend.TelegramID, err)
 			continue
 		}
 		counter++
