@@ -129,7 +129,7 @@ func ValidateHour(hour string) error {
 		return nil
 	}
 
-	validHourMessage := formatter.UnorderedList([]string{"Hour: integer between [0, 23]", "Minutes: 0 or 30"})
+	validHourMessage := formatter.UnorderedList([]string{"Hour: integer between [0, 23]", "Minutes: 0 or 30. E.g: 10:30, 17:00"})
 
 	return fmt.Errorf("invalid hour for alarm: valid hour format is\n%s", validHourMessage)
 }

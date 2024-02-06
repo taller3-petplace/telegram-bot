@@ -78,6 +78,8 @@ func (tb *TelegramBot) DefineHandlers() {
 	tb.bot.Handle(tele.OnText, tb.textHandler)
 
 	tb.bot.Handle(tele.OnEdited, tb.editMessageHandler)
+
+	tb.bot.Handle(tele.OnLocation, tb.searchVets)
 }
 
 func (tb *TelegramBot) StartBot() {

@@ -192,7 +192,19 @@ func (tb *TelegramBot) getSalchiFact(c tele.Context) error {
 
 // getVets returns the veterinaries near the location of the user
 func (tb *TelegramBot) getVets(c tele.Context) error {
-	return c.Send("implement me")
+	locationMenu := tb.bot.NewMarkup()
+
+	locationMenu.Inline(
+		locationMenu.Row(button.Location),
+	)
+
+	return c.Send("Please, send us your location clicking below", locationMenu)
+}
+
+// searchVets returns the veterinaries near the location of the user
+func (tb *TelegramBot) searchVets(c tele.Context) error {
+	message := "me vino esto: " + c.Data()
+	return c.Send(message)
 }
 
 // extractPetData extracts pet data from the given message. Does not validate the fields, it only ensures that they are all present
