@@ -16,7 +16,7 @@ const scheduleNotifications = "schedule_notifications"
 // with the provided data in domain.NotificationRequest
 func (r *Requester) RegisterNotifications(notificationRequest domain.NotificationRequest) ([]domain.NotificationResponse, error) {
 	operation := "ScheduleNotifications"
-	endpointData, err := r.UsersService.GetEndpoint(scheduleNotifications)
+	endpointData, err := r.NotificationsService.GetEndpoint(scheduleNotifications)
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return nil, err

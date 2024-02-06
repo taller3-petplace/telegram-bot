@@ -45,7 +45,7 @@ func Commands() string {
 		fmt.Sprintf("/help: gives information about the commands that the bot supports"),
 		fmt.Sprintf("/createPet: creates a register for your pet on-demand %s", emoji.Notebook),
 		fmt.Sprintf("/getPets: looks for information about your pets %s %s %s %s ", emoji.DogFace, emoji.CatFace, emoji.Crocodile, emoji.Otter),
-		fmt.Sprintf("/setAlarm: sets an alarm whenever you want in your timezone %s", emoji.AlarmClock),
+		fmt.Sprintf("/setNotification: sets an alarm whenever you want in your timezone %s", emoji.AlarmClock),
 		fmt.Sprintf("/getVets: search vets %s near your location", emoji.Hospital),
 		fmt.Sprintf(
 			"/salchiFact: we all love '%s', so what's better that a random fact about salchichas? %s %s #SalchiData\n",
