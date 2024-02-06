@@ -194,8 +194,8 @@ func (tb *TelegramBot) getSalchiFact(c tele.Context) error {
 func (tb *TelegramBot) getVets(c tele.Context) error {
 	locationMenu := tb.bot.NewMarkup()
 
-	locationMenu.Inline(
-		locationMenu.Row(button.Location),
+	locationMenu.Reply(
+		locationMenu.Row(locationMenu.Location("Enter your location")),
 	)
 
 	return c.Send("Please, send us your location clicking below", locationMenu)
