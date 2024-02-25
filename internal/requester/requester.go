@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	configFilePath = "internal/config/config.json"
+	configFilePath = "internal/requester/internal/config/config.json"
 	telegramHeader = "X-Telegram-App"
 )
 
